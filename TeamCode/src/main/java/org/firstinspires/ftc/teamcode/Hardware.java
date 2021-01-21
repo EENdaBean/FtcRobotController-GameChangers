@@ -710,4 +710,9 @@ public class Hardware {
         LaunchAngle.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
+    public void scoop(int dir){
+        //this is specific code so that we can compete in a practice match
+        //this will be removed for actual comp
+    }
+
 }

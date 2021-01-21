@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Hardware;
 
-@TeleOp(name="TeleOp_Basic", group="Iterative Opmode")
+@TeleOp(name="TeleOp_Basic", group="Comp")
 //@Disabled
 public class TeleOp_Basic extends OpMode {
 
@@ -45,10 +45,10 @@ public class TeleOp_Basic extends OpMode {
             inReverse=!inReverse;
         bWasPressed=gamepad1.b;
         //first we must translate the rectangular values of the joystick into polar coordinates;
-        double y=-1*gamepad1.left_stick_x;
-        double x=gamepad1.left_stick_y;
-        double angle=0;
-        //this section uses trig to determine the angle at which the left joystick is pointing
+        double y = -1 * gamepad1.left_stick_y;
+        double x = gamepad1.left_stick_x;
+        double angle = 0;
+
         if(y>0 && x>0)//quadrant 1
             angle=Math.atan(y/x);
         else if(y>0 && x<0)//quadrant 2
@@ -58,7 +58,6 @@ public class TeleOp_Basic extends OpMode {
         else if(y<0 && x>0)//quadrant 4
             angle=Math.toRadians(360)+Math.atan(y/x);
 
-        //this accounts for for special cases not included in the previous section
         if(y==0 && x>1)
             angle=0;
         if(y>0 && x==0)
@@ -68,27 +67,23 @@ public class TeleOp_Basic extends OpMode {
         if(y<0 && x==0)
             angle=3*Math.PI/2;
 
-        double velocity=Math.sqrt(Math.pow(gamepad1.right_stick_x, 2)+Math.pow(gamepad1.left_stick_y, 2));
-        double rotation=gamepad1.left_stick_x*-1;
+        double velocity=Math.sqrt(Math.pow(gamepad1.left_stick_y, 2)+Math.pow(gamepad1.left_stick_x, 2));
+        double rotation=gamepad1.right_stick_x;
 
         if(inReverse)//reverse button
             angle+=Math.toRadians(180);
 
         angle+=Math.toRadians(270);
 
-        //equations taking the polar coordinates and turning them into motor powers
-        double vx = velocity * Math.cos(angle + (Math.PI / 4));
-        double vy = velocity * Math.sin(angle + (Math.PI / 4));
-
-        double power1= vx -rotation;
-        double power2= vy +rotation;
-        double power3= vy -rotation;
-        double power4= vx +rotation;
-
-        r.backRight.setPower(-power1 * deflator);
-        r.backLeft.setPower(power2 * deflator);
-        r.frontLeft.setPower(power3 * deflator);
-        r.frontRight.setPower(-power4 * deflator);
+        //equations taking the polar coordinates and turing them into motor powers
+        double power1=velocity*Math.cos(angle+(Math.PI/4))-rotation;
+        double power2=velocity*Math.sin(angle+(Math.PI/4))+rotation;
+        double power3=velocity*Math.sin(angle+(Math.PI/4))-rotation;
+        double power4=velocity*Math.cos(angle+(Math.PI/4))+rotation;
+        r.frontLeft.setPower(power1 * deflator);
+        r.frontRight.setPower(power2 * deflator);
+        r.backLeft.setPower(power3 * deflator);
+        r.backRight.setPower(power4 * deflator);
 
     }
 }

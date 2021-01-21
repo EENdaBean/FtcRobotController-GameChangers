@@ -1,121 +1,185 @@
-## TeamCode Module
+# 9161 Overload
+### This is our TeamCode for the 2020-2021 FTC robotics competition Game Changers.
 
-Welcome!
+# Files ([Location](https://github.com/BenGhent/FtcRobotController-GameChangers/tree/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode))
+  ## Hardware.java
 
-This module, TeamCode, is the place where you will write/paste the code for your team's
-robot controller App. This module is currently empty (a clean slate) but the
-process for adding OpModes is straightforward.
+  Our [Hardware file](https://github.com/BenGhent/FtcRobotController-GameChangers/blob/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Hardware.java) is our backbone of all of our programs, we init Hardware as "r" so that it is less clunky to write and easier to read.
+  ```java
+  Hardware r = new Hardware();
+  ```
+  The Hardware file inits all of our motors, servos, and sensors.
 
-## Creating your own OpModes
+  ```java
+  public DcMotor frontLeft;    // Front Left drive motor
+  
+  public Servo LanchPist;      // launching piston for firing mechanism
+  
+  public DistanceSensor Dist;  // Distance sensor to detect distance to the goal
+  ```
 
-The easiest way to create your own OpMode is to copy a Sample OpMode and make it your own.
+  This is a good representation of how we decided to name our public variables. We named them by the position they are or by what they are.
 
-Sample opmodes exist in the FtcRobotController module.
-To locate these samples, find the FtcRobotController module in the "Project/Android" tab.
+   * L = Left
+   * R = Right
+   * F = Front
+   * B = Back
+   * M = Motor
 
-Expand the following tree elements:
- FtcRobotController / java / org.firstinspires.ftc.robotcontroller / external / samples
+   * I = intake
+   * Lau = Launcher
+  ```
+   _____       _____
+   |   |       |   |
+   |FLM|       |FRM|
+   |   ‾‾‾‾‾‾‾‾    |
+   |   ________    |
+   |BLM|       |BRM|
+   |   |       |   |
+   ‾‾‾‾‾       ‾‾‾‾‾
+   ```
+   ```java
+   frontLeft = hwMap.dcMotor.get("FLM");
+   frontRight = hwMap.dcMotor.get("FRM");
+   backLeft = hwMap.dcMotor.get("BLM");
+   backRight = hwMap.dcMotor.get("BRM");
+   ```
 
-A range of different samples classes can be seen in this folder.
-The class names follow a naming convention which indicates the purpose of each class.
-The full description of this convention is found in the samples/sample_convention.md file.
+  ## Autonomous ([Files](https://github.com/BenGhent/FtcRobotController-GameChangers/tree/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Autos))
 
-A brief synopsis of the naming convention is given here:
-The prefix of the name will be one of the following:
+  We have many different names for our files, Red, Blue are for the different sides. Basic is a basic move to position, Inter is the intermediate step which only fires the canon, Advanced which uses CV, via TensorFlow, to look and know how many rings are anf moves there, and Supreme does all.
+  | Side  | Type | Location  | Auto  | Example |
+  | ------------- | ------------- | ------------- | ------------- | ------------- |
+  | Red  | Basic  | Left  | Auto  | Ex: Red_Advanced_Left_Auto.java  |
+  | Blue  | Inter  | Right  |   |   |
+  |   | Advanced  |   |   |   |
+  |   | Supreme  |   |   |   |
 
-* Basic:    This is a minimally functional OpMode used to illustrate the skeleton/structure
-            of a particular style of OpMode.  These are bare bones examples.
-* Sensor:   This is a Sample OpMode that shows how to use a specific sensor.
-            It is not intended as a functioning robot, it is simply showing the minimal code
-            required to read and display the sensor values.
-* Hardware: This is not an actual OpMode, but a helper class that is used to describe
-            one particular robot's hardware devices: eg: for a Pushbot.  Look at any
-            Pushbot sample to see how this can be used in an OpMode.
-            Teams can copy one of these to create their own robot definition.
-* Pushbot:  This is a Sample OpMode that uses the Pushbot robot structure as a base.
-* Concept:	This is a sample OpMode that illustrates performing a specific function or concept.
-            These may be complex, but their operation should be explained clearly in the comments,
-            or the header should reference an external doc, guide or tutorial.
-* Library:  This is a class, or set of classes used to implement some strategy.
-            These will typically NOT implement a full OpMode.  Instead they will be included
-            by an OpMode to provide some stand-alone capability.
+    * Red - For the red side
+    * Blue - For the blue side
+    * Adv - The code decides which side it is on
+    * Left - For the left square when looking at goals
+    * Right - For the right square when looking at goals
 
-Once you are familiar with the range of samples available, you can choose one to be the
-basis for your own robot.  In all cases, the desired sample(s) needs to be copied into
-your TeamCode module to be used.
+    * Basic - This is a basic program, this program just moves the robot in a direction for a specified amount distance in one or two directions
+    * Inter - This is the intermediate stage, this program is an upgrade from Basic program. This program will do the basic tasks that Basic uses but will also add an atempt to launch three rings into the top goal
+    * Advanced - This is the advanced version of the basic program. This program will detect how many rings are stacked and move to the correct position then move back to the white line
+    * Supreme - This program is the most advanced version of the Basic program. This program does everything, launches the rings into the top goal, detects rings and moves wobble goal into position, and them moves back onto the white line.
 
-This is done inside Android Studio directly, using the following steps:
+  ## TeleOp ([Files](https://github.com/BenGhent/FtcRobotController-GameChangers/tree/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/TeleOp))
 
- 1) Locate the desired sample class in the Project/Android tree.
+  There are three different types of our TeleOp:
+    1. [Basic](https://github.com/BenGhent/FtcRobotController-GameChangers/blob/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/TeleOp/TeleOp_Basic.java) - We have basic tools to move around, no firing or loading, just movement
+    2. [Dev](https://github.com/BenGhent/FtcRobotController-GameChangers/blob/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/TeleOp/TeleOp_Dev.java) - Testing TeleOp which is our testing code, where we test out code before committing it to Comp
+    3. [Pub](https://github.com/BenGhent/FtcRobotController-GameChangers/blob/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/TeleOp/TeleOp_Pub.java) - Competition code, tested and proven code meant for competition and is also our practicing file, where we practice for comp
 
- 2) Right click on the sample class and select "Copy"
+  TeleOp is what we call the driver control program. Here we have all of our if statements and movement math. We are using mechanum wheels so that we can move in each direction just by varying our speeds of the motors.
 
- 3) Expand the  TeamCode / java folder
+  ```java
+  double velocity=Math.sqrt(Math.pow(gamepad1.left_stick_x, 2)+Math.pow(gamepad1.left_stick_y, 2));
+  double g2vel=Math.sqrt(Math.pow(gamepad2.right_stick_y,2))+Math.pow(gamepad2.right_stick_x,2);
+  double rotation=gamepad1.right_stick_x*-1;
+  double g2rot=gamepad1.right_stick_x*-1;
 
- 4) Right click on the org.firstinspires.ftc.teamcode folder and select "Paste"
+  double power1=velocity*Math.cos(angle+(Math.PI/4))-rotation;
+  double power2=velocity*Math.sin(angle+(Math.PI/4))+rotation;
+  double power3=velocity*Math.sin(angle+(Math.PI/4))-rotation;
+  double power4=velocity*Math.cos(angle+(Math.PI/4))+rotation;
+  r.frontLeft.setPower(power1 * deflator);
+  r.frontRight.setPower(power2 * deflator);
+  r.backLeft.setPower(power3 * deflator);
+  r.backRight.setPower(power4 * deflator);
+  ```
 
- 5) You will be prompted for a class name for the copy.
-    Choose something meaningful based on the purpose of this class.
-    Start with a capital letter, and remember that there may be more similar classes later.
+  This uses Trig to calculate the angle of the gamepad sticks to get the direction of movement, then how far the stick has moved to calculate speed. This allows us to accurately control the robot in all directions.
 
-Once your copy has been created, you should prepare it for use on your robot.
-This is done by adjusting the OpMode's name, and enabling it to be displayed on the
-Driver Station's OpMode list.
+  ## AutoTransitioner.java
 
-Each OpMode sample class begins with several lines of code like the ones shown below:
+  [This class](https://github.com/BenGhent/FtcRobotController-GameChangers/blob/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/AutoTransitioner.java) was created to quickly and easily transfer from our autonomous to our TeleOp.
 
-```
- @TeleOp(name="Template: Linear OpMode", group="Linear Opmode")
- @Disabled
-```
+  This is not our software, all credit goes to [KNO3 Robotics](https://github.com/KNO3Robotics)
 
-The name that will appear on the driver station's "opmode list" is defined by the code:
- ``name="Template: Linear OpMode"``
-You can change what appears between the quotes to better describe your opmode.
-The "group=" portion of the code can be used to help organize your list of OpModes.
+  ## Auto
 
-As shown, the current OpMode will NOT appear on the driver station's OpMode list because of the
-  ``@Disabled`` annotation which has been included.
-This line can simply be deleted , or commented out, to make the OpMode visible.
+  [This class](https://github.com/BenGhent/FtcRobotController-GameChangers/blob/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Autos/Auto.java) was created to ease the creation of the autonomous programs.
 
+  This class was created to allow us to make custom autonomous code on the fly to adapt to our teammates autonomous.
 
+  referenced as:
+  ```java
+  Auto a = new Auto();
+  ```
 
-## ADVANCED Multi-Team App management:  Cloning the TeamCode Module
+  We use redefinition of methods so that we can easily understand what they do, such as:
 
-In some situations, you have multiple teams in your club and you want them to all share
-a common code organization, with each being able to *see* the others code but each having
-their own team module with their own code that they maintain themselves.
+  ```java
+  public void launch(){
+    //meant to launch into the goal
+}
 
-In this situation, you might wish to clone the TeamCode module, once for each of these teams.
-Each of the clones would then appear along side each other in the Android Studio module list,
-together with the FtcRobotController module (and the original TeamCode module).
+public void launch(int a, int b, int c){
+    //this method will shoot down the power shots depending on which we want
+    if(a == 1){
+        //angle cannon and fire
+    }
+    //move to the right
+    if(b == 1){
+        //angle cannon and fire
+    }
+    //move the robot
+    if(c == 1){
+        //angle cannon and fire
+    }
+}
 
-Selective Team phones can then be programmed by selecting the desired Module from the pulldown list
-prior to clicking to the green Run arrow.
+  ```
 
-Warning:  This is not for the inexperienced Software developer.
-You will need to be comfortable with File manipulations and managing Android Studio Modules.
-These changes are performed OUTSIDE of Android Studios, so close Android Studios before you do this.
- 
-Also.. Make a full project backup before you start this :)
-
-To clone TeamCode, do the following:
-
-Note: Some names start with "Team" and others start with "team".  This is intentional.
-
-1)  Using your operating system file management tools, copy the whole "TeamCode"
-    folder to a sibling folder with a corresponding new name, eg: "Team0417".
-
-2)  In the new Team0417 folder, delete the TeamCode.iml file.
-
-3)  the new Team0417 folder, rename the "src/main/java/org/firstinspires/ftc/teamcode" folder
-    to a matching name with a lowercase 'team' eg:  "team0417".
-
-4)  In the new Team0417/src/main folder, edit the "AndroidManifest.xml" file, change the line that contains
-         package="org.firstinspires.ftc.teamcode"
-    to be
-         package="org.firstinspires.ftc.team0417"
-
-5)  Add:    include ':Team0417' to the "/settings.gradle" file.
-    
-6)  Open up Android Studios and clean out any old files by using the menu to "Build/Clean Project""
+  ## CV.java
+  
+  This is our [Vuforia](https://developer.vuforia.com/) and [Tensorflow lite](https://www.tensorflow.org/lite) Computer Vision class. [This class](https://github.com/BenGhent/FtcRobotController-GameChangers/blob/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/CV.java) allows us to detect objects weather we are in Autonomous or TeleOp so that we can accurately detect and line up with objects such as the ring stack or the goals. This was taken from [ConceptTensorFlowObjectDetectionWebcam](https://github.com/BenGhent/FtcRobotController-GameChangers/blob/master/FtcRobotController/src/main/java/org/firstinspires/ftc/robotcontroller/external/samples/ConceptTensorFlowObjectDetectionWebcam.java) in the examples located [here.](https://github.com/BenGhent/FtcRobotController-GameChangers/blob/master/FtcRobotController/src/main/java/org/firstinspires/ftc/robotcontroller/external/samples)
+  
+  This uses the Tensorflow models(.tflite) that were generously provided by the wonderful people at First Inspires. (See [the FTC wiki](https://github.com/FIRST-Tech-Challenge/FtcRobotController/wiki/Java-Sample-TensorFlow-Object-Detection-Op-Mode) for more information.)
+  
+  Things to still do:
+  - [X] Test on robot
+  - [ ] Convert to reference class
+  - [X] Make compatible with Autonomous
+  - [ ] Make compatible with TeleOp
+  - [ ] Add reference images (the ones under the goals and outer walls)
+  
+   ##Multi-Thread
+   
+   This year we have opted to go with a different approach to dealing with bugs, Multi-Threading. What Multi-Threading allows us to do is run our CV program in the background so that if and when it gets stuck on a task, it is not hindering our ability to still move and control the robot. We are using multi-threading mainly for our CV program.
+  
+  # Overall Things
+  
+  ## Things to do
+  
+  ### Robot
+  - [X] Complete the initial chassis design
+  - [X] Build the chassis
+  - [X] Design the launching mechanism
+  - [ ] Build the launching mechanism
+  - [ ] Mount the launching mechanism
+  
+  ### Software
+  - [X] Get Basic software working ([File](https://github.com/BenGhent/FtcRobotController-GameChangers/blob/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/TeleOp/TeleOp_Basic.java))
+  - [X] Get [CV.java](https://github.com/BenGhent/FTC-2020-Game-Changers/blob/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/CV.java) working
+  - [ ] Get launching code working ([File](https://github.com/BenGhent/FTC-2020-Game-Changers/blob/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/TeleOp/TeleOp_Dev.java))
+  - [ ] Get comp code working after dev is working
+  
+  ## Extra Things
+  As an extra challenge that we are tackling this year, we will be developing a SLAM (Self Locating and Mapping) software. This will take in gyroscope data and computer vision to locate the robot on the field semi accurately. This is will used trained tensorflow software to recognise the reference images placed around the game field.
+  
+  For the future development this will allow us to have a semi-autonomous TeleOp where the user is only there to "kill" the robot if something goes wrong. This is possible in the 2020-2021 year because we will not have an alliance partner that could mess with positions, get in the way, or even block important targets for positioning.
+  
+  ### Extra todo
+  - [ ] Fix threading in [Dev](https://github.com/BenGhent/FtcRobotController-GameChangers/tree/Dev) branch
+  - [ ] Get CV thread and main threat to communicate
+    - [ ] Wi-Fi port
+    - [ ] File (not recommended)
+  - [ ] Start position software
+  
+  ## This year
+  
+  Due to the global pandemic we will not be doing in-person competitions for the foreseeable future. This will allow our team to branch out and understand and develop new tools that will help us in the future competitions. We are learning new ways to make the robot modular and easily changeable, we are diping out toes in computer vision, we are also developing new ways to organize our teams to make the job of our journelists (notebook people) easier by documenting every step of the designe process.
