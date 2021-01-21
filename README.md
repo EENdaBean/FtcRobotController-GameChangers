@@ -141,9 +141,9 @@ public void launch(int a, int b, int c){
   This uses the Tensorflow modles(.tflite) that were generously provided by the wonderful people at First Inspires. (See [the FTC wiki](https://github.com/FIRST-Tech-Challenge/FtcRobotController/wiki/Java-Sample-TensorFlow-Object-Detection-Op-Mode) for more information.)
   
   Things to still do:
-  - [ ] Test on robot
+  - [X] Test on robot
   - [ ] Convert to refrence class
-  - [ ] Make compatable with Autonomus
+  - [X] Make compatable with Autonomus
   - [ ] Make compatable with Teleop
   - [ ] Add reference images (the ones under the goals and outer walls)
   
@@ -157,16 +157,21 @@ public void launch(int a, int b, int c){
   
   ### Robot
   - [X] Complete the initial chassis designe
-  - [ ] Build the chassis
+  - [X] Build the chassis
   - [X] Designe the launching mechanism
   - [ ] Build the launching mechanism
   - [ ] Mount the launching mechanism
   
   ### Software
-  - [ ] Get Basic software working ([File](https://github.com/BenGhent/FtcRobotController-GameChangers/blob/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/TeleOp/TeleOp_Basic.java))
-  - [ ] Get [CV.java](https://github.com/BenGhent/FTC-2020-Game-Changers/blob/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/CV.java) working
+  - [X] Get Basic software working ([File](https://github.com/BenGhent/FtcRobotController-GameChangers/blob/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/TeleOp/TeleOp_Basic.java))
+  - [X] Get [CV.java](https://github.com/BenGhent/FTC-2020-Game-Changers/blob/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/CV.java) working
   - [ ] Get launching code working ([File](https://github.com/BenGhent/FTC-2020-Game-Changers/blob/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/TeleOp/TeleOp_Dev.java))
   - [ ] Get comp code working after dev is working
+  
+  ### Extra Software
+  As an extra challenge that we are tackling this year, we will be developing a SLAM (Self Locating and Maping) software. This will take in gyroscope data and computer vision to locate the robot on the field semi accuratly. This is will used trained tensorflow software to recognise the reference images placed around the game field.
+  
+  For the future development this will allow us to have a semi-autonomus TeleOp where the user is only there to "kill" the robot if something goes wrong. This is possible in the 2020-2021 year because we will not have an alience partner that could mess with positions, get in the way, or even block important targets for positioning.
   
   ## This year
   
