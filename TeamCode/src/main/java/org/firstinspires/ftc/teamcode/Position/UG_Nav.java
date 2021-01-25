@@ -334,8 +334,6 @@ public class UG_Nav extends LinearOpMode {
                 telemetry.addData("OpMode", "True all the way");
                 angle = Math.atan2((target[1]-xyz[1]),(target[0]-xyz[0]));//TODO: target[0]-xyz[0])
                 telemetry.addData("Angle",angle);
-                //TODO: You've got your gt/lt signs backwards. "Less than -5" would be -6 to infinity
-                //TODO: To make this easier to debug, calculate "distance to target" (x, y and absolute) and print to the console. Has the added benefit of then being able to use absolute distance in your if statement.
                 if(target[0]-xyz[0] >= -5 && target[0]-xyz[0] <= 5 && target[1]-xyz[1] >= -5 && target[1]-xyz[1] <= 5 ){
                     telemetry.addData("Debug", "Getting in false");
                     move(angle, xyz[3],false);
