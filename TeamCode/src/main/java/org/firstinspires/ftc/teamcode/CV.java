@@ -173,6 +173,8 @@ public class CV extends LinearOpMode {
         VuforiaTrackable frontWallTarget = targetsUltimateGoal.get(4);
         frontWallTarget.setName("Front Wall Target");
 
+        //allTrackables.addAll(targetsUltimateGoal);
+
         // Loading trackables is not necessary for the TensorFlow Object Detection engine.
     }
 

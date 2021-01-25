@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Hardware;
 
@@ -12,6 +14,9 @@ public class TeleOp_Dev extends OpMode {
 
     boolean inReverse=false;//reverse button is b
     boolean bWasPressed=false;
+
+    boolean t = false;
+    boolean a = false;
 
     Hardware r = new Hardware();
 
@@ -91,17 +96,45 @@ public class TeleOp_Dev extends OpMode {
         *
         * =============================================*/
 
-        if(gamepad2.left_bumper){//rotate to the optimal angle to get ring in goal
-            r.Angle();
+//        if(gamepad2.left_bumper){//rotate to the optimal angle to get ring in goal
+//            r.Angle();
+//        }
+//
+//        if(gamepad1.a){//rotate robot to face the goal
+//            r.lock();
+//        }
+//
+//        if(gamepad2.left_bumper && gamepad2.a){//If both the angle and the firing button is pressed, fire the ring
+//            r.fire();
+//        }
+
+        if(gamepad1.a) {
+            r.TempServo.setPosition(1);
+            //r.TempServo.setDirection(Servo.Direction.REVERSE);
+//            r.TempDC.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//            r.TempDC.setTargetPosition(10);
+//            if(r.TempDC.getCurrentPosition() != r.TempDC.getTargetPosition())
+            telemetry.addData("Servo", "0.2");
+            t = true;
+        }
+        if(gamepad1.b){
+            r.TempServo.setPosition(0);
+//            r.TempDC.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//            r.TempDC.setTargetPosition(0);
+            //r.TempServo.setDirection(Servo.Direction.FORWARD);
+            telemetry.addData("Servo", "0.3");
+            t=false;
         }
 
-        if(gamepad1.a){//rotate robot to face the goal
-            r.lock();
-        }
+//        if(r.TempDC.getCurrentPosition() != r.TempDC.getTargetPosition()){
+//            if(r.TempDC.getCurrentPosition() < r.TempDC.getTargetPosition()){
+//                r.TempDC.setPower(-0.2);
+//            }else{
+//                r.TempDC.setPower(0.2);
+//            }
+//        }
 
-        if(gamepad2.left_bumper && gamepad2.a){//If both the angle and the firing button is pressed, fire the ring
-            r.fire();
-        }
+        telemetry.update();
 
     }
 }

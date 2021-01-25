@@ -27,21 +27,25 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.robotcontroller.external.samples;
+package org.firstinspires.ftc.teamcode.Tests;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+import org.firstinspires.ftc.teamcode.Hardware;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,13 +89,15 @@ import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocaliz
  */
 
 
-@TeleOp(name="ULTIMATEGOAL Vuforia Nav Webcam", group ="Concept")
+@TeleOp(name="Nav_Test", group ="Concept")
 //@Disabled
-public class ConceptVuforiaUltimateGoalNavigationWebcam extends LinearOpMode {
+public class UG_Nav extends LinearOpMode {
 
     // IMPORTANT: If you are using a USB WebCam, you must select CAMERA_CHOICE = BACK; and PHONE_IS_PORTRAIT = false;
     private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
     private static final boolean PHONE_IS_PORTRAIT = false  ;
+
+    Hardware r = new Hardware();
 
     /*
      * IMPORTANT: You need to obtain your own license key to use Vuforia. The string below with which
@@ -132,11 +138,20 @@ public class ConceptVuforiaUltimateGoalNavigationWebcam extends LinearOpMode {
     private float phoneYRotate    = 0;
     private float phoneZRotate    = 0;
 
+    private double angle;
+    private double xyz[] = {0,0,0,0};
+
+    public int target[] = {30,30};
+
     @Override public void runOpMode() {
         /*
          * Retrieve the camera we are to use.
          */
         webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
+
+        r.initRobot(hardwareMap, telemetry);
+
+        r.initIMU();
 
         /*
          * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
@@ -245,13 +260,13 @@ public class ConceptVuforiaUltimateGoalNavigationWebcam extends LinearOpMode {
 
         // Next, translate the camera lens to where it is on the robot.
         // In this example, it is centered (left to right), but forward of the middle of the robot, and above ground level.
-        final float CAMERA_FORWARD_DISPLACEMENT  = 10.0f * mmPerInch;   // eg: Camera is 4 Inches in front of robot-center
-        final float CAMERA_VERTICAL_DISPLACEMENT = 10f * mmPerInch;   // eg: Camera is 8 Inches above ground
-        final float CAMERA_LEFT_DISPLACEMENT     = 10f * mmPerInch;     // eg: Camera is ON the robot's center line
+        final float CAMERA_FORWARD_DISPLACEMENT  = 4.0f * mmPerInch;   // eg: Camera is 4 Inches in front of robot-center
+        final float CAMERA_VERTICAL_DISPLACEMENT = 8.0f * mmPerInch;   // eg: Camera is 8 Inches above ground
+        final float CAMERA_LEFT_DISPLACEMENT     = 0;     // eg: Camera is ON the robot's center line
 
         OpenGLMatrix robotFromCamera = OpenGLMatrix
-                    .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
-                    .multiplied(Orientation.getRotationMatrix(EXTRINSIC, YZX, DEGREES, phoneYRotate, phoneZRotate, phoneXRotate));
+                .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
+                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, YZX, DEGREES, phoneYRotate, phoneZRotate, phoneXRotate));
 
         /**  Let all the trackable listeners know where the phone is.  */
         for (VuforiaTrackable trackable : allTrackables) {
@@ -271,6 +286,11 @@ public class ConceptVuforiaUltimateGoalNavigationWebcam extends LinearOpMode {
         // Tap the preview window to receive a fresh image.
 
         targetsUltimateGoal.activate();
+
+        r.imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
+
+        int a = 0;
+
         while (!isStopRequested()) {
 
             // check all the trackable targets to see which one (if any) is visible.
@@ -296,10 +316,14 @@ public class ConceptVuforiaUltimateGoalNavigationWebcam extends LinearOpMode {
                 VectorF translation = lastLocation.getTranslation();
                 telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
                         translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
+                xyz[0] = translation.get(0) / mmPerInch;
+                xyz[1] = translation.get(1) / mmPerInch;
+                xyz[2] = translation.get(2) / mmPerInch;
 
                 // express the rotation of the robot in degrees.
                 Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
                 telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
+                xyz[3] = rotation.thirdAngle;
             }
             else {
                 telemetry.addData("Visible Target", "none");
@@ -307,16 +331,82 @@ public class ConceptVuforiaUltimateGoalNavigationWebcam extends LinearOpMode {
 
             //==========personal==========
             if(opModeIsActive() && targetVisible){
-                telemetry.addData("OpMode", "True");
+                telemetry.addData("OpMode", "True all the way");
+                angle = Math.atan2((target[1]-xyz[1]),(target[0]-xyz[0]));//TODO: target[0]-xyz[0])
+                telemetry.addData("Angle",angle);
+                //TODO: You've got your gt/lt signs backwards. "Less than -5" would be -6 to infinity
+                //TODO: To make this easier to debug, calculate "distance to target" (x, y and absolute) and print to the console. Has the added benefit of then being able to use absolute distance in your if statement.
+                if(target[0]-xyz[0] >= -5 && target[0]-xyz[0] <= 5 && target[1]-xyz[1] >= -5 && target[1]-xyz[1] <= 5 ){
+                    telemetry.addData("Debug", "Getting in false");
+                    move(angle, xyz[3],false);
+                }else{
+                    telemetry.addData("Debug", "Getting in true");
+                    move(angle, xyz[3],true);
+                }
             }else{
                 telemetry.addData("OpMode", "False");
+                move(angle + (Math.PI)/2, xyz[3],false);
+                if(a % 5 ==0){
+                    rotate(0.3);
+                }
             }
             //========End personal========
 
             telemetry.update();
+
+            a++;
         }
 
         // Disable Tracking when we are done;
         targetsUltimateGoal.deactivate();
     }
+
+    private void move(double angle , double heading, boolean tf){
+        double power1;
+        double power2;
+        double power3;
+        double power4;
+        if(tf) {
+            angle = ((Math.PI)/2) - (Math.toRadians(heading) - angle);
+            telemetry.addData("Angle Send", angle);
+            r.setDriveMotorMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            //double angle = Math.random();
+
+            double velocity = 0.6;
+            double rotation = 0;
+            //equations taking the polar coordinates and turning them into motor powers
+            double vx = velocity * Math.cos(angle + (Math.PI / 4));
+            double vy = velocity * Math.sin(angle + (Math.PI / 4));
+
+            power1 = vx - rotation;
+            power2 = vy + rotation;
+            power3 = vy - rotation;
+            power4 = vx + rotation;
+            telemetry.addData("Angle", angle);
+        }else {
+            power1 = 0;
+            power2 = 0;
+            power3 = 0;
+            power4 = 0;
+        }
+        r.frontLeft.setPower(power1);
+        r.frontRight.setPower(power2);
+        r.backLeft.setPower(power3);
+        r.backRight.setPower(power4);
+
+    }
+
+    private void rotate(double speed){
+        r.frontLeft.setPower(-speed);
+        r.frontRight.setPower(speed);
+        r.backLeft.setPower(-speed);
+        r.backRight.setPower(speed);
+        r.waiter(1000);
+        r.frontLeft.setPower(0);
+        r.frontRight.setPower(0);
+        r.backLeft.setPower(0);
+        r.backRight.setPower(0);
+        r.waiter(500);
+    }
+
 }
