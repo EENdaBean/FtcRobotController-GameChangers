@@ -143,7 +143,8 @@ public class UG_Nav extends LinearOpMode {
 
     public int target[] = {30,30};
 
-    @Override public void runOpMode() {
+    @Override
+    public void runOpMode() {
         /*
          * Retrieve the camera we are to use.
          */
@@ -316,14 +317,14 @@ public class UG_Nav extends LinearOpMode {
                 VectorF translation = lastLocation.getTranslation();
                 telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
                         translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
-                xyz[0] = translation.get(0) / mmPerInch;
-                xyz[1] = translation.get(1) / mmPerInch;
-                xyz[2] = translation.get(2) / mmPerInch;
+                xyz[0] = translation.get(0) / mmPerInch; // X-axis
+                xyz[1] = translation.get(1) / mmPerInch; // Y-axis
+                xyz[2] = translation.get(2) / mmPerInch; // Z-axis (not used but here for any future projects)
 
                 // express the rotation of the robot in degrees.
                 Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
                 telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
-                xyz[3] = rotation.thirdAngle;
+                xyz[3] = rotation.thirdAngle; // Heading in deg
             }
             else {
                 telemetry.addData("Visible Target", "none");
@@ -332,22 +333,28 @@ public class UG_Nav extends LinearOpMode {
             //==========personal==========
             if(opModeIsActive() && targetVisible){
                 telemetry.addData("OpMode", "True all the way");
-                angle = Math.atan2((target[1]-xyz[1]),(target[0]-xyz[0]));//TODO: target[0]-xyz[0])
+                
+                // Determine the angle the robot needs to move to reach the coord
+                angle = Math.atan2((target[1]-xyz[1]),(target[0]-xyz[0])); // atan2(Y-axis, X-axis)
+                
                 telemetry.addData("Angle",angle);
-                if(target[0]-xyz[0] >= -5 && target[0]-xyz[0] <= 5 && target[1]-xyz[1] >= -5 && target[1]-xyz[1] <= 5 ){
+                if(target[0]-xyz[0] >= -5 && target[0]-xyz[0] <= 5 && target[1]-xyz[1] >= -5 && target[1]-xyz[1] <= 5 ){ // See if the robot is within the target zone or not
                     telemetry.addData("Debug", "Getting in false");
-                    move(angle, xyz[3],false);
-                }else{
+                    move(angle, xyz[3],false); // move(angle, heading, if we want to stop)
+                    target = new int[]{(int) (Math.random() * (30 - (-30)) + (-30)), (int) (Math.random() * (30 - (-30)) + (-30))};
+                }else{ // If the robot is not in the zone of the coord, attempt to move there
                     telemetry.addData("Debug", "Getting in true");
-                    move(angle, xyz[3],true);
+                    move(angle, xyz[3],true); // move(angle, heading, if we want to stop)
                 }
-            }else{
+            }else{ // If the robot does not detect a target and/or the op is not active
                 telemetry.addData("OpMode", "False");
-                move(angle + (Math.PI)/2, xyz[3],false);
-                if(a % 5 ==0){
-                    rotate(0.3);
+                move(angle + (Math.PI)/2, xyz[3],false); // move(angle, heading, if we want to stop)
+                if(a % 5 ==0 && opModeIsActive()){ // If the loop count is a multiple of five rotate the robot
+                    rotate(0.3, 1000);
                 }
             }
+            telemetry.addData("Target-X", target[1]);
+            telemetry.addData("Target-Y", target[0]);
             //========End personal========
 
             telemetry.update();
@@ -359,52 +366,56 @@ public class UG_Nav extends LinearOpMode {
         targetsUltimateGoal.deactivate();
     }
 
+    //TODO: Add IMU data to keep position even in "deadzones"
+    //TODO: Add the ability to slow down when the robot gets close to the target to get as close as possible
+
     private void move(double angle , double heading, boolean tf){
         double power1;
         double power2;
         double power3;
         double power4;
         if(tf) {
-            angle = ((Math.PI)/2) - (Math.toRadians(heading) - angle);
+            angle = ((Math.PI)/2) - (Math.toRadians(heading) - angle); // Calculate the angle relative to the robot
             telemetry.addData("Angle Send", angle);
-            r.setDriveMotorMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            //double angle = Math.random();
+            r.setDriveMotorMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); // Run the motors without their encoders
 
-            double velocity = 0.6;
-            double rotation = 0;
+            double velocity = 0.6; // speed the bot will move
+            //TODO: Add alignment data to line up with the reference targets
+                //TODO: Only for wanted reference targets
+            double rotation = 0;   // set the rotation the robot needs to move
             //equations taking the polar coordinates and turning them into motor powers
-            double vx = velocity * Math.cos(angle + (Math.PI / 4));
-            double vy = velocity * Math.sin(angle + (Math.PI / 4));
+            double vx = velocity * Math.cos(angle + (Math.PI / 4)); // determine the velocity in the Y-axis
+            double vy = velocity * Math.sin(angle + (Math.PI / 4)); // determine the velocity in the X-axis
 
-            power1 = vx - rotation;
-            power2 = vy + rotation;
-            power3 = vy - rotation;
-            power4 = vx + rotation;
+            power1 = vx - rotation; // Calculate the power of motor 1
+            power2 = vy + rotation; // Calculate the power of motor 2
+            power3 = vy - rotation; // Calculate the power of motor 3
+            power4 = vx + rotation; // Calculate the power of motor 4
             telemetry.addData("Angle", angle);
-        }else {
+        }else { // if we dont want the robot to move, set the power to zero
             power1 = 0;
             power2 = 0;
             power3 = 0;
             power4 = 0;
         }
-        r.frontLeft.setPower(power1);
-        r.frontRight.setPower(power2);
-        r.backLeft.setPower(power3);
-        r.backRight.setPower(power4);
+        r.frontLeft.setPower(power1);  // set the power of the front left motor
+        r.frontRight.setPower(power2); // set the power of the front right motor
+        r.backLeft.setPower(power3);   // set the power of the back left motor
+        r.backRight.setPower(power4);  // set the power of the back right motor
 
     }
 
-    private void rotate(double speed){
+    private void rotate(double speed, int time){
         r.frontLeft.setPower(-speed);
         r.frontRight.setPower(speed);
         r.backLeft.setPower(-speed);
         r.backRight.setPower(speed);
-        r.waiter(1000);
+        r.waiter(time);
         r.frontLeft.setPower(0);
         r.frontRight.setPower(0);
         r.backLeft.setPower(0);
         r.backRight.setPower(0);
-        r.waiter(500);
+        r.waiter(time/2);
     }
 
 }
