@@ -29,6 +29,9 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import android.os.Handler;
+import android.os.Message;
+
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -751,7 +754,7 @@ public class Hardware {
 
         do{
             if(LaunchAngle.getTargetPosition() < LaunchAngle.getCurrentPosition()){
-                LaunchAngle.setPower(-0.6);
+                LaunchAngle.setPower(-0.6);27d216cda4069edc616f12595b78f910f85d7ca1
             }else if(LaunchAngle.getTargetPosition() > LaunchAngle.getCurrentPosition()){
                 LaunchAngle.setPower(0.6);
             }
@@ -826,5 +829,4 @@ public class Hardware {
         //this is specific code so that we can compete in a practice match
         //this will be removed for actual comp
     }
-
 }
