@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Position_File;
+package org.firstinspires.ftc.teamcode.Threads.Position_File;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -23,19 +23,39 @@ import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.YZX;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.EXTRINSIC;
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
 
+/**
+ * This was designed to grab the position of the robot using the camera
+ * mounted at the front of the robot.
+ *
+ * This runs in a separate thread as not to slow down anything that is
+ * more important such as TeleOp
+ *
+ * This class was built on {@see ConceptVuforiaUltimateGoalNavigation}
+ * for the base code without any threading or custom code
+ *
+ * For the future:
+ * TODO: Add IMU position for "Deadzone positioning"
+ * */
+
 public class Position implements Runnable{
 	
-	HardwareMap hwMap;
-	Hardware r = new Hardware();
-	Telemetry telemetry;
-	PosThread_Callback ptc;
+	private static final String VUFORIA_KEY = //Add your Vufoia key here
+			"AZdDUFH/////AAABmcE1YUJiRkFeqUd1ljT7cbdPlx6u99cBf3BUJkI0x0olgxQwoyRsI+d8nyiSxYL2wiDc1vclp+Ql47jL6T5X1SYSxpK7xywrV8oRnT46GyN1bCUz7K+vjW5IP7XTP9QzV831LHvu5cjc+++k/KafMAu9tcnEeGGVjqQBoAO01SfFn09TrNc3FyvHBtLHQlGi08VmF2M2koexANGpCG9gcBxWhkPvbbgAyR5MbZ4iiKLUSltYooplimJS/JX/QFqSfqQEMP7Lzq0xX+ngWdUP3Tuc45ggmJjbHTAS3dA1+hD8iFURON2gcw8/nZqsD/GJcxlocvU3FTeFpsIxWd0ow/S3jjQ3ZplJ7PuvTm1BSwfC";
+	
+	/**
+	 *
+	 * DO NOT EDIT BEYOND THIS POINT
+	 *
+	 * */
+	
+	HardwareMap hwMap;           //Create a HardwareMap
+	Hardware r = new Hardware(); //Create hardware class for camera TODO: along with IMU
+	Telemetry telemetry;         //Create logger
+	PosThread_Callback ptc;      //Add the callback interface
 	
 	//Vision variables
 	private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
 	private static final boolean PHONE_IS_PORTRAIT = false  ;
-	
-	private static final String VUFORIA_KEY =
-			"AZdDUFH/////AAABmcE1YUJiRkFeqUd1ljT7cbdPlx6u99cBf3BUJkI0x0olgxQwoyRsI+d8nyiSxYL2wiDc1vclp+Ql47jL6T5X1SYSxpK7xywrV8oRnT46GyN1bCUz7K+vjW5IP7XTP9QzV831LHvu5cjc+++k/KafMAu9tcnEeGGVjqQBoAO01SfFn09TrNc3FyvHBtLHQlGi08VmF2M2koexANGpCG9gcBxWhkPvbbgAyR5MbZ4iiKLUSltYooplimJS/JX/QFqSfqQEMP7Lzq0xX+ngWdUP3Tuc45ggmJjbHTAS3dA1+hD8iFURON2gcw8/nZqsD/GJcxlocvU3FTeFpsIxWd0ow/S3jjQ3ZplJ7PuvTm1BSwfC";
 	
 	private static final float mmPerInch        = 25.4f;
 	private static final float mmTargetHeight   = (6) * mmPerInch;          // the height of the center of the target image above the floor
@@ -55,8 +75,8 @@ public class Position implements Runnable{
 	private float phoneYRotate    = 0;
 	private float phoneZRotate    = 0;
 	
-	private double angle;
-	private double xyz[] = {0,0,0,0};
+	private double angle;                    // Angle of the heading
+	private double xyz[] = {0,0,0,0};        // {x,y,z,heading}
 	
 	List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
 	
@@ -64,14 +84,14 @@ public class Position implements Runnable{
 	
 	boolean running = false;
 	
-	public Position(HardwareMap hwmap, Telemetry tm, PosThread_Callback PTC){
+	public Position(HardwareMap hwmap, Telemetry tm, PosThread_Callback PTC){ //Init the class
 		hwMap = hwmap;
 		telemetry = tm;
 		ptc = PTC;
 	}
 	
-	public void init_pos(){
-		webcamName = hwMap.get(WebcamName.class, "Webcam 1");
+	public void init_pos(){ //init class w/ vision
+		webcamName = hwMap.get(WebcamName.class, "Webcam 2"); //Position camera
 		
 		int cameraMonitorViewId = hwMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hwMap.appContext.getPackageName());
 		VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
@@ -160,15 +180,15 @@ public class Position implements Runnable{
 	@Override
 	public void run() {
 		running=true;
-		telemetry.addData("Runnable", "Running!");
+		telemetry.addData("Runnable", "Running!"); //tell us the thread is running
 		telemetry.update();
 		init_pos();
-		while(running){
+		while(running){ //do this for the entire time this thread is active
 			// check all the trackable targets to see which one (if any) is visible.
 			targetVisible = false;
 			for (VuforiaTrackable trackable : allTrackables) {
 				if (((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible()) {
-					telemetry.addData("Visible Target", trackable.getName());
+//					telemetry.addData("Visible Target", trackable.getName());
 					targetVisible = true;
 					
 					// getUpdatedRobotLocation() will return null if no new information is available since
@@ -185,22 +205,22 @@ public class Position implements Runnable{
 			if (targetVisible) {
 				// express position (translation) of robot in inches.
 				VectorF translation = lastLocation.getTranslation();
-				telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
-						translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
+//				telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
+//						translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
 				xyz[0] = translation.get(0) / mmPerInch; // X-axis
 				xyz[1] = translation.get(1) / mmPerInch; // Y-axis
 				xyz[2] = translation.get(2) / mmPerInch; // Z-axis (not used but here for any future projects)
 				
 				// express the rotation of the robot in degrees.
 				Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
-				telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
+//				telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
 				xyz[3] = rotation.thirdAngle; // Heading in deg
 			}
 			else {
-				telemetry.addData("Visible Target", "none");
+//				telemetry.addData("Visible Target", "none");
 			}
 			
-			ptc.post(xyz);
+			ptc.post(xyz, targetVisible); //send the position back through the callback to the thread that started this thread
 			
 			//telemetry.update();
 		}
