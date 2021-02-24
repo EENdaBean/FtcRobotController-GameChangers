@@ -84,6 +84,23 @@ public class TeleOp_Basic extends OpMode {
         r.frontRight.setPower(power2 * deflator);
         r.backLeft.setPower(power3 * deflator);
         r.backRight.setPower(power4 * deflator);
+        
+//        if(gamepad1.dpad_up){
+//            r.Intake.setPower(1);
+//        }else{
+//            r.Intake.setPower(0);
+//        }
+//
+//        if(gamepad1.dpad_down){
+//            r.Launcher.setPower(1);
+//        }else{
+//            r.Launcher.setPower(0);
+//        }
+//
+//        if(gamepad1.dpad_left){
+//            r.Intake.setPower(1);
+//            r.Launcher.setPower(1);
+//        }
 
     }
 }

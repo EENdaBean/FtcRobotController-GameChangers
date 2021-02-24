@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.AutoTransitioner;
 import org.firstinspires.ftc.teamcode.Hardware;
 
-@Autonomous(name="Red_Blue_Basic_Auto", group="Linear Opmode")
+@Autonomous(name="Red_Blue_Basic_Auto", group="Comp")
 //@Disabled
 public class RedBlue_Basic_Auto extends LinearOpMode {
 

@@ -66,24 +66,14 @@ public class Hardware {
      *
      * */
 
-    public DcMotor frontLeft;    // Front Left drive motor
-    public DcMotor backLeft;     // Back Left drive motor
-    public DcMotor frontRight;   // Front Right drive motor
-    public DcMotor backRight;    // Back Right drive motor
-
-    public DcMotor LauncherLeft; // Left Firing spin wheel motor
-    public DcMotor LauncherRight;// Right Firing spin wheel motor
-    public DcMotor LaunchAngle;  // Motor that drives the angle of the launcher
-
-    public DcMotor loadRotate;   // Motor that drives the angle of the loader
-    public DcMotor loadLoader;   // Loading spin wheel motor
+    public DcMotor frontLeft, backLeft, frontRight, backRight;    // Drive motors
+    
+    public DcMotor Intake;
+    public DcMotor Launcher;
 
     public Servo LaunchPist;      // launching piston for firing mechanism
 
     public Servo TempServo;
-
-    public DcMotor TempDC;
-    public DcMotor TempDC2;
 
     public DistanceSensor Dist;  // Distance sensor to detect distance to the goal
 
@@ -159,38 +149,16 @@ public class Hardware {
          *
          * */
         //Wheels
-        frontLeft = hwMap.dcMotor.get("FLM");
-        frontRight = hwMap.dcMotor.get("FRM");
-        backLeft = hwMap.dcMotor.get("BLM");
-        backRight = hwMap.dcMotor.get("BRM");
-
+        frontLeft = hwMap.dcMotor.get("FLM");  //Front left motor
+        frontRight = hwMap.dcMotor.get("FRM"); //Front right motor
+        backLeft = hwMap.dcMotor.get("BLM");   //Back left motor
+        backRight = hwMap.dcMotor.get("BRM");  //Back right motor
+        
+        Intake = hwMap.dcMotor.get("intake");  //Intake motor
+        Launcher = hwMap.dcMotor.get("launch");//Launcher motor
+        
         frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         backRight.setDirection(DcMotorSimple.Direction.REVERSE);
-
-//        TempServo = hwMap.servo.get("TS");
-//
-//        TempDC = hwMap.dcMotor.get("TM");
-//        TempDC2 = hwMap.dcMotor.get("TM2");
-
-//        //Fly wheels
-//        LauncherLeft = hwMap.dcMotor.get("LLM");
-//        LauncherRight = hwMap.dcMotor.get("LRM");
-//
-//        loadLoader = hwMap.dcMotor.get("LM");
-//
-//        LauncherRight.setDirection(DcMotorSimple.Direction.REVERSE);
-//
-//        //Rotators
-//        LaunchAngle = hwMap.dcMotor.get("LAM");
-//        loadRotate = hwMap.dcMotor.get("LoAM");
-//
-//        //Pistons
-//        LaunchPist = hwMap.servo.get("Pist");
-//
-//        //Sensors
-//        Dist = hwMap.get(DistanceSensor.class, "FDist"); // Distance sensor
-//
-//        LaunchAngle.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
 
@@ -636,197 +604,12 @@ public class Hardware {
     //custom code for specific challenge
 
     //This is for Game Changers
-
-    //double angle; //Calculate the angle of the launcher
-
-    public int side; //For the robot to know which side of the map it is dealing with during Auto and TeleOP 0 = blue, 1 = red
-
-    public double angle(){
-        return Math.atan(
-            (Math.sqrt(2*(g)*(GoalHeight-RobotHeight))/
-                    (getDist()/Math.sqrt(
-                            (2*getDist())/
-                                    ((-1*B)*V^N)
-                    )
-                    )
-            )
-        );
-
-    }
-
-    public double angle(int height){
-        return Math.atan(
-                (Math.sqrt(2*(g)*(height-RobotHeight))/
-                        (getDist()/Math.sqrt(
-                                (2*getDist())/
-                                        ((-1*B)*V^N)
-                        )
-                        )
-                )
-        );
-
-    }
-
-    public double angle(int height, int dist, int RobotHeight){
-        return Math.atan(
-                (Math.sqrt(2*(g)*(height-RobotHeight))/
-                        (dist/Math.sqrt(
-                                (2*dist)/
-                                        ((-1*B)*V^N)
-                        )
-                        )
-                )
-        );
-
-    }
-
-    public void Angle(){// Firing sequence for launching rings
-        //use equation to find the angle that the firing mechanism must rotate to
-        //lock("Red");// lock onto target using CV
-
-        LaunchAngle.setTargetPosition((int)(angle()*ticksPerDeg));
-
-        //spin up launch motors
-        LauncherLeft.setPower(0.6);
-        LauncherRight.setPower(0.6);
-        //use mathe to move into correct angle
-        if(LaunchAngle.getMode() != DcMotor.RunMode.RUN_TO_POSITION) {
-            LaunchAngle.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    
+    public void run_At_Speed(DcMotor motor, int speed){
+        if(motor.getMode() != DcMotor.RunMode.RUN_USING_ENCODER){
+            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
-
-        do{
-            if(LaunchAngle.getTargetPosition() < LaunchAngle.getCurrentPosition()){
-                LaunchAngle.setPower(-0.6);
-            }else if(LaunchAngle.getTargetPosition() > LaunchAngle.getCurrentPosition()){
-                LaunchAngle.setPower(0.6);
-            }
-            telemetry.addData("Angle set: ", angle());//in deg
-            telemetry.addData("At angle: ", LaunchAngle.getCurrentPosition()/ticksPerDeg);
-            telemetry.update();
-        }while(
-                LaunchAngle.getCurrentPosition() < LaunchAngle.getTargetPosition() - 10 &&
-                        LaunchAngle.getCurrentPosition() > LaunchAngle.getTargetPosition() + 10
-        );
+        
     }
-
-    public void Angle(int height){//height is the height of the target position from ground
-
-        //same code as Angle() but variable
-
-        LaunchAngle.setTargetPosition((int)(angle(height)*ticksPerDeg));
-
-        //spin up launch motors
-        LauncherLeft.setPower(0.6);
-        LauncherRight.setPower(0.6);
-        //use mathe to move into correct angle
-        if(LaunchAngle.getMode() != DcMotor.RunMode.RUN_TO_POSITION) {
-            LaunchAngle.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        }
-
-        do{
-            if(LaunchAngle.getTargetPosition() < LaunchAngle.getCurrentPosition()){
-                LaunchAngle.setPower(-0.6);
-            }else if(LaunchAngle.getTargetPosition() > LaunchAngle.getCurrentPosition()){
-                LaunchAngle.setPower(0.6);
-            }
-            telemetry.addData("Angle set: ", angle());//in deg
-            telemetry.addData("At angle: ", LaunchAngle.getCurrentPosition()/ticksPerDeg);
-            telemetry.update();
-        }while(
-                LaunchAngle.getCurrentPosition() < LaunchAngle.getTargetPosition() - 10 &&
-                        LaunchAngle.getCurrentPosition() > LaunchAngle.getTargetPosition() + 10
-        );
-    }
-
-    public void Angle_test(int angle){//height is the height of the target position from ground
-
-        //same code as Angle() but variable
-
-        LaunchAngle.setTargetPosition((int)(angle*ticksPerDeg));
-
-        //spin up launch motors
-        LauncherLeft.setPower(0.6);
-        LauncherRight.setPower(0.6);
-        //use mathe to move into correct angle
-        if(LaunchAngle.getMode() != DcMotor.RunMode.RUN_TO_POSITION) {
-            LaunchAngle.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        }
-
-        do{
-            if(LaunchAngle.getTargetPosition() < LaunchAngle.getCurrentPosition()){
-                LaunchAngle.setPower(-0.6);27d216cda4069edc616f12595b78f910f85d7ca1
-            }else if(LaunchAngle.getTargetPosition() > LaunchAngle.getCurrentPosition()){
-                LaunchAngle.setPower(0.6);
-            }
-            telemetry.addData("Angle set: ", angle);//in deg
-            telemetry.addData("At angle: ", LaunchAngle.getCurrentPosition()/ticksPerDeg);
-            telemetry.update();
-        }while(
-                LaunchAngle.getCurrentPosition() < LaunchAngle.getTargetPosition() - 10 &&
-                        LaunchAngle.getCurrentPosition() > LaunchAngle.getTargetPosition() + 10
-        );
-    }
-
-    public void fire(){
-        //rotate servo to fire
-        LaunchPist.setPosition(1);
-
-        waiter(500);
-        //rotate back
-        LaunchPist.setPosition(0);
-    }
-
-    public void fire(int num){
-        for(int i = 0; i<=num; i++){
-            LaunchPist.setPosition(1);
-
-            waiter(500);
-
-            LaunchPist.setPosition(0);
-        }
-    }
-
-    public double getDist(){// Get distance to the wall using distance sensor
-        telemetry.addData("Dist = ", Dist.getDistance(DistanceUnit.MM));
-        telemetry.update();
-        return Dist.getDistance(DistanceUnit.MM);
-    }
-
-    public void lock(){
-        // This method will lock onto the target on the wall
-        // This will use the camera and the image to locate where the image is
-        // Use a do while
-
-        setDriveMotorMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        do{
-            if(side == 0){ //Blue
-                //rotate +x
-            }else if(side == 1){ //Red
-                //rotate -x
-            }
-        }while(
-            // image ! within the range of a specified value
-                true
-        );
-
-    }
-    int x=0;
-
-    public void init_angle(){
-        LaunchAngle.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        do{
-            LaunchAngle.setPower(-0.6);
-            x++;
-        }while(
-                //rotate the angle motor until the cannon hits the endstop
-               x == 0
-        );
-        LaunchAngle.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-    }
-
-    public void scoop(int dir){
-        //this is specific code so that we can compete in a practice match
-        //this will be removed for actual comp
-    }
+    
 }

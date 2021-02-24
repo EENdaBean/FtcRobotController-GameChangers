@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Tests;
 import android.hardware.Sensor;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.bosch.BNO055IMUImpl;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.hardware.bosch.NaiveAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -17,6 +18,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 import org.firstinspires.ftc.teamcode.Hardware;
 
 import java.util.Locale;
@@ -24,41 +26,47 @@ import java.util.Locale;
 import static android.hardware.Sensor.TYPE_GAME_ROTATION_VECTOR;
 
 @TeleOp(name="Test_Tele", group="Iterative Opmode")
-//@Disabled
+@Disabled
 public class Test extends OpMode {
 
     boolean inReverse=false;//reverse button is b
     boolean bWasPressed=false;
     
     // The IMU sensor object
-    BNO055IMU imu;
+    BNO055IMUImpl imu;
     public int sm = TYPE_GAME_ROTATION_VECTOR;
     // State used for updating telemetry
     Orientation angles;
     Acceleration gravity;
     
     Position n = new Position();
+    Velocity m = new Velocity();
 
     @Override
     public void init() {
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+    
+        n.x = 0;
+        n.y = 0;
+        n.z = 0;
+        
+        m.xVeloc = 0;
+        m.yVeloc = 0;
+        m.zVeloc = 0;
+        
+        BNO055IMUImpl.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
         parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
         parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
         parameters.loggingEnabled      = true;
         parameters.loggingTag          = "IMU";
-//        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
+        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
 //        parameters.mode = BNO055IMU.SensorMode.ACCGYRO;
         
         // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
         // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
         // and named "imu".
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
+        imu = hardwareMap.get(BNO055IMUImpl.class, "imu");
         imu.initialize(parameters);
-        
-        n.x = 0;
-        n.y = 0;
-        n.z = 0;
         
         imu.startAccelerationIntegration(n, null, 1);
         
