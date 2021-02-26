@@ -1,18 +1,24 @@
-package org.firstinspires.ftc.teamcode.Autos;
+/**
+ *
+ * This autonomous is made to "randomly" move to a box
+ * so have a one in three chance of getting the correct position
+ *
+ */
+
+package org.firstinspires.ftc.teamcode.Autos.Blue;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.AutoTransitioner;
 import org.firstinspires.ftc.teamcode.Hardware;
 
-@Autonomous(name="Red_Basic_Auto", group="Comp")
+@Autonomous(name="Blue_Basic_Auto", group="Comp")
 //@Disable
-public class Red_Basic_Auto extends LinearOpMode {
+public class Blue_Basic_Auto extends LinearOpMode {
 
     Hardware r = new Hardware();
-
-    Auto a = new Auto();
 
     @Override
     public void runOpMode() {
@@ -20,8 +26,6 @@ public class Red_Basic_Auto extends LinearOpMode {
         r.initRobot(hardwareMap, telemetry);
         r.initAutonomous();
         
-        // Wait for the game to start (driver presses PLAY)
-        waitForStart();
-
+        waitForStart();//Wait for us to start the game
     }
 }

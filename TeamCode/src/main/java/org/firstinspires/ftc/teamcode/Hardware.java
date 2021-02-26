@@ -68,16 +68,7 @@ public class Hardware {
 
     public DcMotor frontLeft, backLeft, frontRight, backRight;    // Drive motors
     
-    public DcMotor Intake;
-    public DcMotor Launcher;
-
-    public Servo LaunchPist;      // launching piston for firing mechanism
-
-    public Servo TempServo;
-
-    public DistanceSensor Dist;  // Distance sensor to detect distance to the goal
-
-    public SensorREV2mDistance di;
+    public DcMotor Intake, Launcher, Flywheel;
 
     public BNO055IMU imu;
 
@@ -87,7 +78,7 @@ public class Hardware {
     Telemetry telemetry;
     HardwareMap hwMap;
 
-    ElapsedTime timer = new ElapsedTime();
+    public ElapsedTime timer = new ElapsedTime();
 
     public static final int ticksPerInch=56;
 
@@ -100,17 +91,6 @@ public class Hardware {
     public static final double ticksPerDeg=9.7; //the number of ticks it takes for the axle of the motor to rotate 1 deg, doing a (28(5*5*5))/360 = 9.7
 
     public static final int GoalHeight=92;  //Height of the goal from the ground
-
-    public static final int RobotHeight=0; //Height of the robot from the ground
-
-    public static final double g=9.8;      //Gravity
-
-    public static final int B=0;           //Drag
-
-    public static final int V=0;           //Terminal Velocity
-
-    public static final int N=0;           //Terminal Velocity Constant
-
 
     public void initRobot(HardwareMap spareMap, Telemetry tempTelemetry){
         hwMap = spareMap;
@@ -154,8 +134,9 @@ public class Hardware {
         backLeft = hwMap.dcMotor.get("BLM");   //Back left motor
         backRight = hwMap.dcMotor.get("BRM");  //Back right motor
         
-        Intake = hwMap.dcMotor.get("intake");  //Intake motor
-        Launcher = hwMap.dcMotor.get("launch");//Launcher motor
+        Intake = hwMap.dcMotor.get("intake");    //Intake motor
+        Launcher = hwMap.dcMotor.get("launch");  //Launcher motor
+        Flywheel = hwMap.dcMotor.get("Flywheel");//Launcher flywheel
         
         frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         backRight.setDirection(DcMotorSimple.Direction.REVERSE);

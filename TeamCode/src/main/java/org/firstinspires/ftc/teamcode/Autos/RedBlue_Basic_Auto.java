@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.AutoTransitioner;
+import org.firstinspires.ftc.teamcode.Autos.Auto;
 import org.firstinspires.ftc.teamcode.Hardware;
 
 @Autonomous(name="Red_Blue_Basic_Auto", group="Comp")
@@ -22,6 +23,8 @@ public class RedBlue_Basic_Auto extends LinearOpMode {
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
+        
+        //TODO: add random movement
 
     }
 }
