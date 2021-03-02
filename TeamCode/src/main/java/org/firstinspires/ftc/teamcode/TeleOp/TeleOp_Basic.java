@@ -12,6 +12,9 @@ public class TeleOp_Basic extends OpMode {
 
     boolean inReverse=false;//reverse button is b
     boolean bWasPressed=false;
+    
+    boolean intake = false;
+    boolean intake_running = false;
 
     Hardware r = new Hardware();
 
@@ -19,12 +22,10 @@ public class TeleOp_Basic extends OpMode {
     public void init() {
 
         r.initRobot(hardwareMap, telemetry);
-        //r.deInitColor(hardwareMap);
     }
 
     @Override
     public void loop() {
-        //int speed = 0;
         double deflator = .9;
 
         //this code determines what percentage of the motor power that will be used.
@@ -52,7 +53,7 @@ public class TeleOp_Basic extends OpMode {
         if(y>0 && x>0)//quadrant 1
             angle=Math.atan(y/x);
         else if(y>0 && x<0)//quadrant 2
-            angle=Math.toRadians(180)+Math.atan(y/x);
+            angle= Math.toRadians(180)+Math.atan(y/x);
         else if(y<0 && x<0)//quadrant 3
             angle=Math.toRadians(180)+Math.atan(y/x);
         else if(y<0 && x>0)//quadrant 4
@@ -84,23 +85,33 @@ public class TeleOp_Basic extends OpMode {
         r.frontRight.setPower(power2 * deflator);
         r.backLeft.setPower(power3 * deflator);
         r.backRight.setPower(power4 * deflator);
+    
+        if(gamepad1.x && !intake)
+            intake_running=!intake_running;
+        intake=gamepad1.x;
         
-//        if(gamepad1.dpad_up){
-//            r.Intake.setPower(1);
-//        }else{
-//            r.Intake.setPower(0);
-//        }
-//
-//        if(gamepad1.dpad_down){
-//            r.Launcher.setPower(1);
-//        }else{
-//            r.Launcher.setPower(0);
-//        }
-//
-//        if(gamepad1.dpad_left){
-//            r.Intake.setPower(1);
-//            r.Launcher.setPower(1);
-//        }
+        if(gamepad1.y){
+            r.Intake.setPower(-1);
+            intake_running = false;
+        }else{
+            r.Intake.setPower(0);
+        }
+        
+        if(intake_running){
+            r.Intake.setPower(1);
+        }
+
+        if(gamepad1.dpad_down){
+            r.Launcher.setPower(1);
+        }else{
+            r.Launcher.setPower(0);
+        }
+        
+        if(gamepad1.left_trigger !=0){
+            r.Flywheel.setPower(0.95);
+        }else{
+            r.Flywheel.setPower(0);
+        }
 
     }
 }
