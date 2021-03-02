@@ -4,7 +4,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.AutoTransitioner;
-import org.firstinspires.ftc.teamcode.Autos.Auto;
 import org.firstinspires.ftc.teamcode.Hardware;
 
 @Autonomous(name="Red_Basic_Auto", group="Comp")

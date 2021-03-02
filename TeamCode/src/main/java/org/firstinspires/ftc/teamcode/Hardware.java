@@ -135,8 +135,11 @@ public class Hardware {
         backRight = hwMap.dcMotor.get("BRM");  //Back right motor
         
         Intake = hwMap.dcMotor.get("intake");    //Intake motor
-        Launcher = hwMap.dcMotor.get("launch");  //Launcher motor
-        Flywheel = hwMap.dcMotor.get("Flywheel");//Launcher flywheel
+        Launcher = hwMap.dcMotor.get("push");    //Launcher motor
+        Flywheel = hwMap.dcMotor.get("launch");  //Launcher flywheel
+        
+        //Intake.setDirection(DcMotorSimple.Direction.REVERSE);
+        Launcher.setDirection(DcMotorSimple.Direction.REVERSE);
         
         frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         backRight.setDirection(DcMotorSimple.Direction.REVERSE);

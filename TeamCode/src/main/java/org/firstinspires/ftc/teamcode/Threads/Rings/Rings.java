@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Threads.Rings;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.vuforia.Vuforia;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -32,6 +33,8 @@ public class Rings implements Runnable {
 	VuforiaLocalizer vuforia;
 	TFObjectDetector tfod;
 	
+	WebcamName webcam1, webcam2;
+	
 	public Rings(HardwareMap hwmap, Telemetry tm, RingsThread_Callback RTC){ //Init the class
 		hwMap = hwmap;
 		telemetry = tm;
@@ -43,13 +46,12 @@ public class Rings implements Runnable {
 	@Override
 	public void run() {
 		running = true;
+		
 		initVuforia();
 		initTfod();
 		
 		if (tfod != null)
 			tfod.activate();
-		
-		String type = "none";
 		
 		while (rtc.running()) {
 			if (tfod != null) {
@@ -70,7 +72,7 @@ public class Rings implements Runnable {
 					}
 					telemetry.update();
 				}else{
-					//rtc.ring_pos("none");
+					rtc.ring_pos("none");
 				}
 			}
 		}
@@ -78,6 +80,7 @@ public class Rings implements Runnable {
 		if (tfod != null) {
 			tfod.shutdown();
 		}
+		vuforia.getCamera().close();
 		
 	}
 	
@@ -85,14 +88,16 @@ public class Rings implements Runnable {
 		/*
 		 * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
 		 */
+		
 		VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 		
 		parameters.vuforiaLicenseKey = VUFORIA_KEY;
-		parameters.cameraName = hwMap.get(WebcamName.class, "Webcam 1"); //Ring camera
+		webcam1 = hwMap.get(WebcamName.class, "Webcam 1");
+		webcam2 = hwMap.get(WebcamName.class, "Webcam 2");
+		parameters.cameraName = ClassFactory.getInstance().getCameraManager().nameForSwitchableCamera(webcam1, webcam2);
 		
 		//  Instantiate the Vuforia engine
 		vuforia = ClassFactory.getInstance().createVuforia(parameters);
-		
 		
 		//  load reference images
 		VuforiaTrackables targetsUltimateGoal = this.vuforia.loadTrackablesFromAsset("UltimateGoal");

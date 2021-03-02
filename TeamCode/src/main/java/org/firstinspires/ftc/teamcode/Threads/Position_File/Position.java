@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Threads.Position_File;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.vuforia.Vuforia;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -22,6 +23,7 @@ import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.XYZ;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.YZX;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.EXTRINSIC;
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
+import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.FRONT;
 
 /**
  * This was designed to grab the position of the robot using the camera
@@ -30,11 +32,9 @@ import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocaliz
  * This runs in a separate thread as not to slow down anything that is
  * more important such as TeleOp
  *
- * This class was built on {@see ConceptVuforiaUltimateGoalNavigation}
+ * @see org.firstinspires.ftc.robotcontroller.external.samples.ConceptVuforiaUltimateGoalNavigation
  * for the base code without any threading or custom code
  *
- * For the future:
- * TODO: Add IMU position for "Deadzone positioning"
  * */
 
 public class Position implements Runnable{
@@ -49,7 +49,7 @@ public class Position implements Runnable{
 	 * */
 	
 	HardwareMap hwMap;           //Create a HardwareMap
-	Hardware r = new Hardware(); //Create hardware class for camera TODO: along with IMU
+	Hardware r = new Hardware(); //Create hardware class for camera
 	Telemetry telemetry;         //Create logger
 	PosThread_Callback ptc;      //Add the callback interface
 	
@@ -80,6 +80,8 @@ public class Position implements Runnable{
 	
 	List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
 	
+//	Vuforia vuforia = new Vuforia();
+	
 	//End vision variables
 	
 	boolean running = false;
@@ -91,24 +93,8 @@ public class Position implements Runnable{
 	}
 	
 	public void init_pos(){ //init class w/ vision
-		webcamName = hwMap.get(WebcamName.class, "Webcam 2"); //Position camera
-		
-		int cameraMonitorViewId = hwMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hwMap.appContext.getPackageName());
-		VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
-		// VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
-		
-		parameters.vuforiaLicenseKey = VUFORIA_KEY;
-		
-		/**
-		 * We also indicate which camera on the RC we wish to use.
-		 */
-		parameters.cameraName = webcamName;
-		
-		// Make sure extended tracking is disabled for this example.
-		parameters.useExtendedTracking = false;
-		
-		//  Instantiate the Vuforia engine
-		vuforia = ClassFactory.getInstance().createVuforia(parameters);
+		//if(vuforia.getCamera() != null)
+			//vuforia.getCamera().close();
 		
 		// Load the data sets for the trackable objects. These particular data
 		// sets are stored in the 'assets' part of our application.
@@ -171,7 +157,7 @@ public class Position implements Runnable{
 		
 		/**  Let all the trackable listeners know where the phone is.  */
 		for (VuforiaTrackable trackable : allTrackables) {
-			((VuforiaTrackableDefaultListener) trackable.getListener()).setPhoneInformation(robotFromCamera, parameters.cameraDirection);
+			((VuforiaTrackableDefaultListener) trackable.getListener()).setPhoneInformation(robotFromCamera, FRONT);
 		}
 		
 		targetsUltimateGoal.activate();
@@ -224,10 +210,6 @@ public class Position implements Runnable{
 			
 			//telemetry.update();
 		}
-	}
-	
-	void end(){
-		running = false;
 	}
 	
 }

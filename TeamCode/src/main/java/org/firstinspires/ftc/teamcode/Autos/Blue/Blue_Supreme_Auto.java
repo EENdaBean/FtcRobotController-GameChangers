@@ -19,16 +19,14 @@
 
 package org.firstinspires.ftc.teamcode.Autos.Blue;
 
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.AutoTransitioner;
 import org.firstinspires.ftc.teamcode.Hardware;
-import org.firstinspires.ftc.teamcode.Threads.Position_File.PosThread_Callback;
+import org.firstinspires.ftc.teamcode.Threads.Pos_Ring.Pos_Ring;
+import org.firstinspires.ftc.teamcode.Threads.Pos_Ring.Pos_RingCallback;
 import org.firstinspires.ftc.teamcode.Threads.Position_File.Position;
-import org.firstinspires.ftc.teamcode.Threads.Rings.Rings;
-import org.firstinspires.ftc.teamcode.Threads.Rings.RingsThread_Callback;
 
 @Autonomous(name="Blue_Supreme_Auto", group="Comp")
 //@Disabled
@@ -36,21 +34,21 @@ public class Blue_Supreme_Auto extends LinearOpMode {
 	
 	Hardware r = new Hardware();
 	
-	Runnable ring;
-	Thread ringth;
-	Runnable pos;
-	Thread posth;
+	Runnable Pos_Ring;
+	Thread Pos_Ring_TH;
 	
-	double location[] 				 = {0,0,0};
+	double location[] 				 = {0,0,0,0}; //x, y, z, heading
 	boolean is_Targeted 			 = false;
 	static final int target1[] 		 = {0,0};  //target of block 1
-	static final int target2[] 		 = {0,0};  //target of block 2
+	static final int target2[] 		 = {30,30};//target of block 2
 	static final int target3[] 		 = {0,0};  //target of block 3
-	static final int target_launch[] = {0,0};  //target of the location to launch rings
-	static final int target_Line[]   = {0,0};  //target of the ending line (white line)
+	static final int target_launch[] = {3,33}; //target of the location to launch rings
+	static final int target_Line[]   = {7,33}; //target of the ending line (white line)
 	int target[] 					 = {0,0};  //to change where we need to move
 	
-	String amount;
+	String amount = "none";
+	
+	String Cam = "Ring";
 	
 	boolean running = true;  //if the thread is to be running
 	boolean placed  = false; //if we placed the wobble goal
@@ -62,39 +60,45 @@ public class Blue_Supreme_Auto extends LinearOpMode {
 		r.initRobot(hardwareMap, telemetry);
 		r.initAutonomous();
 		
-		RingsThread_Callback rtcb = new RingsThread_Callback() {
+		Pos_RingCallback prcb = new Pos_RingCallback() {
 			@Override
-			public void ring_pos(String Type) {
-				amount = Type;
-				telemetry.addData("Amount", amount);
-				telemetry.update();
+			public void ring(String Amount) {
+				amount = Amount;
 			}
 			
 			@Override
-			public boolean running() {
-				return running;
-			}
-		};
-		
-		ring   = new Rings(hardwareMap,telemetry, rtcb);
-		ringth = new Thread(ring);
-		
-		PosThread_Callback ptcb = new PosThread_Callback() {
-			@Override
-			public void post(double[] a, boolean targeted) {
+			public void pos(double[] a, boolean targeted) {
 				location = a;
 				is_Targeted = targeted;
 			}
+			
+			@Override
+			public boolean is_running() {
+				return running;
+			}
+			
+			@Override
+			public String camera() {
+				return Cam;
+			}
 		};
 		
-		pos   = new Position(hardwareMap,telemetry, ptcb);
-		posth = new Thread(pos);
+		Pos_Ring = new Pos_Ring(hardwareMap, telemetry, prcb);
+		Pos_Ring_TH = new Thread(Pos_Ring);
 		
-		ringth.start();
-		posth.start();
+		Pos_Ring_TH.start();
 		
-		waitForStart();
-		r.timer.startTime();
+		while(!opModeIsActive()){
+			telemetry.addLine("Position - ")
+					.addData("X", "%.0f" ,location[0])
+					.addData("Y", "%.0f", location[1])
+					.addData("Z", "%.0f", location[2])
+					.addData("H", "%.0f", location[3]);
+			telemetry.addLine("Rings - ")
+					.addData("Amount",amount);
+			telemetry.update();
+			r.waiter(500);
+		}
 		
 		switch (amount){
 			case "Single" :
@@ -111,30 +115,23 @@ public class Blue_Supreme_Auto extends LinearOpMode {
 				break;
 		}
 		
-		moveTo(target); //Move to the specified target location
+		Cam = "Pos";
 		
-		moveTo(target_launch);
-		
-		r.Intake.setPower(0.6);
-		r.Flywheel.setPower(1);
-		r.waiter(1000);
-		
-		for(int i = 1; i<=3; i++) {
-			telemetry.addData("Launching", i);
-			r.Launcher.setPower(0.5);
-			r.waiter(100);
-			r.Launcher.setPower(0);
-			r.waiter(250);
-			telemetry.addData("Launched", i);
+		while(opModeIsActive()){
+			telemetry.addLine("Position - ")
+					.addData("X", "%.0f" ,location[0])
+					.addData("Y", "%.0f", location[1])
+					.addData("Z", "%.0f", location[2])
+					.addData("H", "%.0f", location[3]);
+			telemetry.addLine("Rings - ")
+					.addData("Amount",amount);
 			telemetry.update();
-		}
-		
-		moveTo(target_Line);
+			r.waiter(500);
+		};
 		
 		//end of the code, end all of the threads and just stop
 		running = false;
-		ringth.interrupt();
-		posth.interrupt();
+		Pos_Ring_TH.interrupt();
 	}
 	
 	private void moveTo(int[] target){
@@ -150,14 +147,13 @@ public class Blue_Supreme_Auto extends LinearOpMode {
 				double power4;
 				angle = ((Math.PI) / 2) - (Math.toRadians(location[3]) - angle); // Calculate the angle relative to the robot
 				telemetry.addData("Angle Send", angle);
-				//r.setDriveMotorMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); // Run the motors without their encoders
-
+//				r.setDriveMotorMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); // Run the motors without their encoders
+//
 //			deflate = (-0.0000103484 * Math.pow(Math.sqrt(Math.pow(i[0] - target[0],2) + Math.pow(i[1]-target[1], 2)), 4))
 //							  + (0.000788031*(Math.pow(Math.sqrt(Math.pow(i[0] - target[0],2) + Math.pow(i[1]-target[1], 2)), 3)))
 //							  + (-0.021532647*(Math.pow(Math.sqrt(Math.pow(i[0] - target[0],2) + Math.pow(i[1]-target[1], 2)), 2)))
 //							  + (0.248123034*Math.sqrt(Math.pow(i[0] - target[0],2) + Math.pow(i[1]-target[1], 2)))
 //							  - (0.005585635);
-				
 				double velocity = 0.6;// * deflate; // speed the bot will move
 				double rotation = 0;   // set the rotation the robot needs to move
 				

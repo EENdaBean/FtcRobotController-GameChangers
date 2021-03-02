@@ -4,7 +4,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.AutoTransitioner;
-import org.firstinspires.ftc.teamcode.Autos.Auto;
 import org.firstinspires.ftc.teamcode.Hardware;
 
 @Autonomous(name="Red_Blue_Basic_Auto", group="Comp")
@@ -12,8 +11,6 @@ import org.firstinspires.ftc.teamcode.Hardware;
 public class RedBlue_Basic_Auto extends LinearOpMode {
 
     Hardware r = new Hardware();
-
-    Auto a = new Auto();
 
     @Override
     public void runOpMode() {
