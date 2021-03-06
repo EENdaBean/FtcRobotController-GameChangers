@@ -1,8 +1,8 @@
-/**
- *
- * This is the thread to run both ring recognition and position calculations
- *
- * @see org.firstinspires.ftc.teamcode.Threads.Position_File.Position for
+/*
+ 
+  This is the thread to run both ring recognition and position calculations
+ 
+  @see org.firstinspires.ftc.teamcode.Threads.Position_File.Position for
  * info about how the positiong works
  *
  * @see org.firstinspires.ftc.teamcode.Threads.Rings.Rings for info about
@@ -30,7 +30,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefau
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
-import org.firstinspires.ftc.teamcode.Hardware;
+//import org.firstinspires.ftc.teamcode.Hardware;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +45,6 @@ import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocaliz
 public class Pos_Ring implements Runnable {
 	
 	HardwareMap hwMap;           //Create a HardwareMap
-	Hardware r = new Hardware(); //Create hardware class for camera
 	Telemetry telemetry;         //Create logger
 	Pos_RingCallback cb;         //Add the callback interface
 	
@@ -77,14 +76,11 @@ public class Pos_Ring implements Runnable {
 	
 	private OpenGLMatrix lastLocation = null;
 	
-	private boolean targetVisible = false;
 	private float phoneXRotate    = 0;
-	private float phoneYRotate    = 0;
-	private float phoneZRotate    = 0;
 	
-	double xyz[] = {0,0,0,0}; //x, y , z, heading
+	double[] xyz = {0,0,0,0}; //x, y , z, heading
 	
-	List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
+	List<VuforiaTrackable> allTrackables = new ArrayList<>();
 	
 	//End Position vars
 	
@@ -112,7 +108,6 @@ public class Pos_Ring implements Runnable {
 				if (updatedRecognitions != null) {
 //					telemetry.addData("# Object Detected", updatedRecognitions.size());
 					// step through the list of recognitions and display boundary info.
-					int i = 0;
 					for (Recognition recognition : updatedRecognitions) {
 //						telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
 //						telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
@@ -124,14 +119,12 @@ public class Pos_Ring implements Runnable {
 					//telemetry.update();
 				}
 				
-				if(updatedRecognitions == null){
-					cb.ring("none here!");
-				}
+				//					cb.ring("none here!");
 				
 			}
 			
 			// check all the trackable targets to see which one (if any) is visible.
-			targetVisible = false;
+			boolean targetVisible = false;
 			for (VuforiaTrackable trackable : allTrackables) {
 				if (((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible()) {
 //					telemetry.addData("Visible Target", trackable.getName());
@@ -162,9 +155,8 @@ public class Pos_Ring implements Runnable {
 //				telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
 				xyz[3] = rotation.thirdAngle; // Heading in deg
 			}
-			else {
-//				telemetry.addData("Visible Target", "none");
-			}
+			//				telemetry.addData("Visible Target", "none");
+			
 			
 			cb.pos(xyz, targetVisible); //send the position back through the callback to the thread that started this thread
 			
@@ -179,16 +171,10 @@ public class Pos_Ring implements Runnable {
 	
 	//Change what the input is that you want to pass here
 	private void switch_cam(){
-		switch (cb.camera()){
-			case "Pos":
-				switchableCamera.setActiveCamera(webcam1);
-				break;
-			case "Ring":
-				switchableCamera.setActiveCamera(webcam2);
-				break;
-			default:
-				switchableCamera.setActiveCamera(webcam2);
-				break;
+		if ("Pos".equals(cb.camera())) {
+			switchableCamera.setActiveCamera(webcam1);
+		} else {
+			switchableCamera.setActiveCamera(webcam2);
 		}
 	}
 	
@@ -255,6 +241,7 @@ public class Pos_Ring implements Runnable {
 											   .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, -90)));
 		
 		// We need to rotate the camera around it's long axis to bring the correct camera forward.
+		float phoneYRotate;
 		if (CAMERA_CHOICE == BACK) {
 			phoneYRotate = -90;
 		} else {
@@ -272,11 +259,12 @@ public class Pos_Ring implements Runnable {
 		final float CAMERA_VERTICAL_DISPLACEMENT = 8.0f * mmPerInch;   // eg: Camera is 8 Inches above ground
 		final float CAMERA_LEFT_DISPLACEMENT     = 0;     // eg: Camera is ON the robot's center line
 		
+		float phoneZRotate = 0;
 		OpenGLMatrix robotFromCamera = OpenGLMatrix
 											   .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
 											   .multiplied(Orientation.getRotationMatrix(EXTRINSIC, YZX, DEGREES, phoneYRotate, phoneZRotate, phoneXRotate));
 		
-		/**  Let all the trackable listeners know where the phone is.  */
+		/*  Let all the trackable listeners know where the phone is.  */
 		for (VuforiaTrackable trackable : allTrackables) {
 			((VuforiaTrackableDefaultListener) trackable.getListener()).setPhoneInformation(robotFromCamera, FRONT);
 		}

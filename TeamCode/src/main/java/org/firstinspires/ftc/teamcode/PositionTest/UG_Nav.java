@@ -152,7 +152,7 @@ public class UG_Nav extends LinearOpMode {
 
         r.initRobot(hardwareMap, telemetry);
 
-        r.initIMU();
+        //r.initIMU();
 
         /*
          * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
@@ -288,7 +288,7 @@ public class UG_Nav extends LinearOpMode {
 
         targetsUltimateGoal.activate();
 
-        r.imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
+        //r.imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
 
         int a = 0;
 

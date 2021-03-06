@@ -4,39 +4,56 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Hardware;
-import org.firstinspires.ftc.teamcode.Threads.Position_File.PosThread_Callback;
-import org.firstinspires.ftc.teamcode.Threads.Position_File.Position;
+import org.firstinspires.ftc.teamcode.Threads.Pos_Ring.Pos_Ring;
+import org.firstinspires.ftc.teamcode.Threads.Pos_Ring.Pos_RingCallback;
 
 @TeleOp(name="TeleOp_Dev - Position", group="Development")
 //@Disabled
 public class TeleOp_Dev extends OpMode {
     
-    Thread th;
-    Runnable rn;
+    Runnable Pos_Ring;
+    Thread Pos_Ring_TH;
     
     Hardware r = new Hardware();
     
-    double i[] = {0,0,0,0};
-    int target[] = {0,0};
-    double Tangle;
-    boolean Targeted;
+    String amount = "None";
+    double[] location = {0,0,0,0};
+    boolean is_Targeted = false;
+    boolean running = true;
+    String Cam = "Pos";
     
     @Override
     public void init() {
-        PosThread_Callback cb = new PosThread_Callback() {
+        r.initRobot(hardwareMap, telemetry);
+    
+        Pos_RingCallback prcb = new Pos_RingCallback() {
             @Override
-            public void post(double[] a, boolean targeted) {
-//                i[0] = a[0];
-//                i[1] = a[1];
-//                i[2] = a[2];
-                i = a;
-                Targeted = targeted;
+            public void ring(String Amount) {
+                amount = Amount;
+            }
+        
+            @Override
+            public void pos(double[] a, boolean targeted) {
+                location = a;
+                is_Targeted = targeted;
+            }
+        
+            @Override
+            public boolean is_running() {
+                return running;
+            }
+        
+            @Override
+            public String camera() {
+                return Cam;
             }
         };
-        r.initRobot(hardwareMap, telemetry);
-        rn = new Position(hardwareMap,telemetry, cb);
-        th = new Thread(rn);
-        th.start();
+    
+        Pos_Ring = new Pos_Ring(hardwareMap, telemetry, prcb);
+        Pos_Ring_TH = new Thread(Pos_Ring);
+        
+        Pos_Ring_TH.start();
+        
     }
     
     boolean inReverse=false;//reverse button is b
@@ -46,23 +63,32 @@ public class TeleOp_Dev extends OpMode {
     public void loop() {
     
         //int speed = 0;
-        double deflator = .9;
+        double deflator;
     
         //this code determines what percentage of the motor power that will be used.
         if(gamepad1.right_bumper){
             deflator = .4;
         }else {
-            deflator = .9;
+            deflator = .7;
         }
     
         if(gamepad1.left_bumper)
             deflator = 1;
     
         //legacy code that runs our mecanum drive wheels in any direction we want
-    
-        //this first section creates the variables that will be used later
-    
-        if(gamepad1.b && !bWasPressed)
+        /*
+         *
+         * The mecanum wheels should be setup like this:
+         *
+         * \     /
+         *
+         * /     \
+         *
+         * With the black part of the wheel facing towards the center of the bot
+         * */
+        //we need to determine which direction we want to front of the robot to be
+        //that is done here
+        if(gamepad1.back && !bWasPressed)
             inReverse=!inReverse;
         bWasPressed=gamepad1.b;
         //first we must translate the rectangular values of the joystick into polar coordinates;
@@ -72,12 +98,15 @@ public class TeleOp_Dev extends OpMode {
     
         if(y>0 && x>0)//quadrant 1
             angle=Math.atan(y/x);
-        else if(y>0 && x<0)//quadrant 2
-            angle=Math.toRadians(180)+Math.atan(y/x);
-        else if(y<0 && x<0)//quadrant 3
-            angle=Math.toRadians(180)+Math.atan(y/x);
-        else if(y<0 && x>0)//quadrant 4
-            angle=Math.toRadians(360)+Math.atan(y/x);
+        else {
+            double angle1 = Math.toRadians(180) + Math.atan(y / x);
+            if(y>0 && x<0)//quadrant 2
+                angle= angle1;
+            else if(y<0 && x<0)//quadrant 3
+                angle= angle1;
+            else if(y<0 && x>0)//quadrant 4
+                angle=Math.toRadians(360)+Math.atan(y/x);
+        }
     
         if(y==0 && x>1)
             angle=0;
@@ -92,39 +121,17 @@ public class TeleOp_Dev extends OpMode {
         double rotation=gamepad1.right_stick_x;
     
         if(inReverse)//reverse button
-            angle+=Math.toRadians(270);
+            angle+=Math.toRadians(180);
     
-        angle+=Math.toRadians(180);
+        angle+=Math.toRadians(270);
     
         //equations taking the polar coordinates and turing them into motor powers
-        double power1=velocity*Math.cos(angle+(Math.PI/4))-rotation;
-        double power2=velocity*Math.sin(angle+(Math.PI/4))+rotation;
-        double power3=velocity*Math.sin(angle+(Math.PI/4))-rotation;
-        double power4=velocity*Math.cos(angle+(Math.PI/4))+rotation;
-        
-        if(gamepad1.a && Targeted){
-            target = new int[]{30, 30};
-            
-            if(target[0] - i[0] >=5 && target[0] -i[0] <=-5 && target[1] - i[1] >=5 && target[1] - i[1] <=-5) {
-    
-                Tangle = Math.atan2((target[1] - i[1]), (target[0] - i[0])); // atan2(Y-axis, X-axis)
-                Tangle = ((Math.PI) / 2) - (Math.toRadians(i[3]) - Tangle); // Calculate the angle relative to the
-    
-                velocity = 0.6;
-    
-                double vx = velocity * Math.cos(Tangle + (Math.PI / 4)); // determine the velocity in the Y-axis
-                double vy = velocity * Math.sin(Tangle + (Math.PI / 4)); // determine the velocity in the X-axis
-    
-                power1 = vx; // Calculate the power of motor 1
-                power2 = vy; // Calculate the power of motor 2
-                power3 = vy; // Calculate the power of motor 3
-                power4 = vx; // Calculate the power of motor 4
-            
-            }
-            
-        }
-    
-        //Run the motors after all calculations
+        double v1 = velocity * Math.cos(angle + (Math.PI / 4));
+        double power1= v1 +rotation;
+        double v2 = velocity * Math.sin(angle + (Math.PI / 4));
+        double power2= v2 -rotation;
+        double power3= v2 +rotation;
+        double power4= v1 -rotation;
         r.frontLeft.setPower(power1 * deflator);
         r.frontRight.setPower(power2 * deflator);
         r.backLeft.setPower(power3 * deflator);
@@ -132,16 +139,17 @@ public class TeleOp_Dev extends OpMode {
         
         //Logging data
         telemetry.addLine("Pos - ")
-                .addData("X",i[0])
-                .addData("Y",i[1])
-                .addData("Z",i[2])
-                .addData("Heading",i[3]);
+                .addData("X", location[0])
+                .addData("Y", location[1])
+                .addData("Z", location[2])
+                .addData("Heading",location[3]);
         telemetry.update();
     }
     
     @Override
     public void stop() {
-        th.interrupt();
+        running = false;
+        Pos_Ring_TH.interrupt();
         super.stop();
     }
     

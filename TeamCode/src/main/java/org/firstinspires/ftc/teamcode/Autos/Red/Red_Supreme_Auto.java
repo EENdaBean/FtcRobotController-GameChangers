@@ -74,7 +74,7 @@ public class Red_Supreme_Auto extends LinearOpMode {
 		posth.start();
 		
 		waitForStart();
-		r.timer.startTime();
+	//	r.Timer.startTime();
 		
 		switch (amount){
 			case "Single" :

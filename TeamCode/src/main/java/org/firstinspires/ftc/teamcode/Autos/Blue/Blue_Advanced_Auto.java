@@ -17,13 +17,10 @@ package org.firstinspires.ftc.teamcode.Autos.Blue;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.AutoTransitioner;
 import org.firstinspires.ftc.teamcode.Hardware;
-import org.firstinspires.ftc.teamcode.Threads.Position_File.PosThread_Callback;
-import org.firstinspires.ftc.teamcode.Threads.Position_File.Position;
 import org.firstinspires.ftc.teamcode.Threads.Rings.Rings;
 import org.firstinspires.ftc.teamcode.Threads.Rings.RingsThread_Callback;
 
@@ -65,7 +62,7 @@ public class Blue_Advanced_Auto extends LinearOpMode {
 		ringth.start();
 		
 		waitForStart();
-		r.timer.startTime();
+		//r.Timer.startTime();
 		
 		switch (amount){
 			case "Single" :

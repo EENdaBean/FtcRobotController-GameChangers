@@ -46,7 +46,7 @@ public class Red_Advanced_Auto extends LinearOpMode {
 		ringth.start();
 		
 		waitForStart();
-		r.timer.startTime();
+	//	r.Timer.startTime();
 		
 		switch (amount){
 			case "Single" :
