@@ -5,32 +5,68 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.Hardware;
+import org.firstinspires.ftc.teamcode.Threads.Speed.speed;
+import org.firstinspires.ftc.teamcode.Threads.Speed.speedCallback;
 
 @TeleOp(name="TeleOp_Basic", group="Comp")
 //@Disabled
 public class TeleOp_Basic extends OpMode {
 
-    boolean inReverse=false;//reverse button is back button
-    boolean bWasPressed=false;
+    boolean inReverse   =false;//reverse button is back button
+    boolean bWasPressed =false;
     
-    boolean intake = false;
+    boolean intake         = false;
     boolean intake_running = false;
+    
+    // Threading booleans
+    boolean fire    = false; // If we want to spin up the flywheel
+    boolean running = true;  // If we want the thread to run
+    boolean canFire = false; // If we can fire
 
     Hardware r = new Hardware();
     
-    double speed = 0.5;
-    
-    int a1;
-    int a2;
-    int runs = 0;
+    double speed = 0;
     
     int target_speed = 675;
-
+    
+    Runnable sp;
+    Thread sT;
     @Override
     public void init() {
 
         r.initRobot(hardwareMap, telemetry);
         r.Flywheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        
+        speedCallback scb = new speedCallback() {
+            @Override
+            public int speed() {
+                return target_speed;
+            }
+    
+            @Override
+            public boolean fire() {
+                return fire;
+            }
+    
+            @Override
+            public void can_Fire(boolean can, int speed_Flywheel) {
+                canFire = can;
+                speed = speed_Flywheel;
+            }
+    
+            @Override
+            public boolean running() {
+                return running;
+            }
+        };
+        
+        sp = new speed(hardwareMap, telemetry, r.Flywheel, scb);
+        sT = new Thread(sp);
+    }
+    
+    @Override
+    public void start(){
+        sT.start();
     }
 
     @Override
@@ -113,11 +149,13 @@ public class TeleOp_Basic extends OpMode {
         r.frontRight.setPower(power2 * deflator);
         r.backLeft.setPower(power3 * deflator);
         r.backRight.setPower(power4 * deflator);
-    
+        
+        // Turn on or off the intake, toggle
         if(gamepad1.x && !intake)
             intake_running=!intake_running;
         intake=gamepad1.x;
         
+        // Outtake th ring if necessary
         if(gamepad1.y){
             r.Intake.setPower(-1);
             intake_running = false;
@@ -125,48 +163,39 @@ public class TeleOp_Basic extends OpMode {
             r.Intake.setPower(0);
         }
         
+        // actually turn the intake
         if(intake_running){
             r.Intake.setPower(1);
         }
-
-        if(gamepad1.dpad_down){
+        
+        // Launch rings only if we can and want to
+        if(gamepad1.dpad_down && canFire){
             r.Launcher.setPower(1);
         }else{
             r.Launcher.setPower(0);
         }
         
-        if(gamepad1.left_trigger !=0){
-            a1 = r.Flywheel.getCurrentPosition();
-            r.waiter(500);
-            a2 = r.Flywheel.getCurrentPosition();
-            
-            if(a2-a1 < target_speed - 100){
-                speed = speed + 0.05;
-            }
-            
-            if(a2-a1 < target_speed){
-                speed = speed + 0.01;
-            }
-            
-            if(a2-a1 > target_speed){
-                speed = speed - 0.01;
-            }
-            
-            if(a2-a1 > target_speed+ 100){
-                speed = speed - 0.05;
-            }
-            
-            r.Flywheel.setPower(speed);
-            
-            telemetry.addData("Running?", a2-a1);
-            telemetry.addData("Speed?", speed);
-        }else{
-            r.Flywheel.setPower(0);
-        }
+        // Tell the flywheel to spin if we hold down the trigger
+        fire = gamepad1.left_trigger != 0;
+        
+        // Do telemetry things for debug
+        telemetry.addLine("Flywheel")
+                .addData("Speed", speed)
+                .addData("Target speed", target_speed)
+                .addData("Can fire?", canFire);
         
         telemetry.update();
-        
-        runs++;
 
+    }
+    
+    @Override
+    public void stop(){
+        // Stop the Thread
+        running = false;
+        fire = false;
+        sT.interrupt();
+        
+        // Stop TeleOp
+        super.stop();
     }
 }
