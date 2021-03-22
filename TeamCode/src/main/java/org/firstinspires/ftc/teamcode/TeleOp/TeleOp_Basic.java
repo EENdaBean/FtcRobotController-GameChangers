@@ -170,7 +170,7 @@ public class TeleOp_Basic extends OpMode {
         
         // Launch rings only if we can and want to
         if(gamepad1.dpad_down && canFire){
-            r.Launcher.setPower(1);
+            r.Launcher.setPower(0.6);
         }else{
             r.Launcher.setPower(0);
         }
