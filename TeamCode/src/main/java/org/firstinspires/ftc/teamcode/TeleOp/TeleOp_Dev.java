@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.Threads.Pos_Ring.Pos_RingCallback;
 //@Disabled
 public class TeleOp_Dev extends OpMode {
     
-    Runnable Pos_Ring;
+    Pos_Ring Pos_Ring;
     Thread Pos_Ring_TH;
     
     Hardware r = new Hardware();
@@ -19,9 +19,7 @@ public class TeleOp_Dev extends OpMode {
     String amount = "None";
     double[] location = {0,0,0,0};
     boolean is_Targeted = false;
-    boolean running = true;
-    String Cam = "Pos";
-    
+
     @Override
     public void init() {
         r.initRobot(hardwareMap, telemetry);
@@ -37,20 +35,11 @@ public class TeleOp_Dev extends OpMode {
                 location = a;
                 is_Targeted = targeted;
             }
-        
-            @Override
-            public boolean is_running() {
-                return running;
-            }
-        
-            @Override
-            public String camera() {
-                return Cam;
-            }
         };
     
         Pos_Ring = new Pos_Ring(hardwareMap, telemetry, prcb);
         Pos_Ring_TH = new Thread(Pos_Ring);
+        Pos_Ring.switch_cam("Pos");
         
         Pos_Ring_TH.start();
         
@@ -148,7 +137,7 @@ public class TeleOp_Dev extends OpMode {
     
     @Override
     public void stop() {
-        running = false;
+        Pos_Ring.stop();
         Pos_Ring_TH.interrupt();
         super.stop();
     }

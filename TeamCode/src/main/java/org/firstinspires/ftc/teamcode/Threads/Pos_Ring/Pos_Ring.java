@@ -79,6 +79,8 @@ public class Pos_Ring implements Runnable {
 	private float phoneXRotate    = 0;
 	
 	double[] xyz = {0,0,0,0}; //x, y , z, heading
+	boolean running = true;
+	String Rings = "none";
 	
 	List<VuforiaTrackable> allTrackables = new ArrayList<>();
 	
@@ -97,13 +99,11 @@ public class Pos_Ring implements Runnable {
 		
 		tfod.activate();
 		
-		while(cb.is_running()){
-			
-			switch_cam();
-			
+		while(running){
 			if (tfod != null) {
 				// getUpdatedRecognitions() will return null if no new information is available since
 				// the last time that call was made.
+				Rings = "none";
 				List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
 				if (updatedRecognitions != null) {
 //					telemetry.addData("# Object Detected", updatedRecognitions.size());
@@ -114,13 +114,12 @@ public class Pos_Ring implements Runnable {
 //								recognition.getLeft(), recognition.getTop());
 //						telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
 //								recognition.getRight(), recognition.getBottom());
-						cb.ring(recognition.getLabel());
+						Rings = recognition.getLabel();
 					}
 					//telemetry.update();
 				}
 				
-				//					cb.ring("none here!");
-				
+				cb.ring(Rings);
 			}
 			
 			// check all the trackable targets to see which one (if any) is visible.
@@ -170,12 +169,17 @@ public class Pos_Ring implements Runnable {
 	}
 	
 	//Change what the input is that you want to pass here
-	private void switch_cam(){
-		if ("Pos".equals(cb.camera())) {
+	public synchronized void switch_cam(String camera){
+		if ("Pos".equals(camera)) {
 			switchableCamera.setActiveCamera(webcam1);
 		} else {
 			switchableCamera.setActiveCamera(webcam2);
 		}
+	}
+	
+	// Stop the thread
+	public synchronized void stop(){
+		running = false;
 	}
 	
 	//Point vuforia at the camera that you want to use

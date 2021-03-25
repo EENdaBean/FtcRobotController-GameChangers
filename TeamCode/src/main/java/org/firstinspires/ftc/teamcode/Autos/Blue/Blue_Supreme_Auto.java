@@ -43,7 +43,7 @@ public class Blue_Supreme_Auto extends LinearOpMode {
 	
 	Hardware r = new Hardware();
 	
-	Runnable Pos_Ring;
+	Pos_Ring Pos_Ring;
 	Thread Pos_Ring_TH;
 	
 	int targetSpeed = 700; //Ticks per second
@@ -53,14 +53,12 @@ public class Blue_Supreme_Auto extends LinearOpMode {
 	static final int[] target1 		 = {27,56};  //target of block 1
 	static final int[] target2 		 = {47,25};  //target of block 2
 	static final int[] target3       = {47,26};  //target of block 3
-	static final int[] target_launch = {21,35};  //target of the location to launch rings
-	static final int[] target_Line 	 = {30,35};  //target of the ending line (white line)
+	static final int[] target_launch = {15,35};  //target of the location to launch rings
+	static final int[] target_Line 	 = {25,35};  //target of the ending line (white line)
 //	static final int[] target_ring   = {0,0};    //where the reference rings are
 	int[] target 					 = {50,60};  //to change where we need to move
 	
 	String amount = "none";
-	
-	String Cam = "Ring";
 	
 	boolean running = true;  //if the thread is to be running
 	boolean placed  = false; //if we placed the wobble goal
@@ -83,20 +81,11 @@ public class Blue_Supreme_Auto extends LinearOpMode {
 				location = a;
 				is_Targeted = targeted;
 			}
-			
-			@Override
-			public boolean is_running() {
-				return running;
-			}
-			
-			@Override
-			public String camera() {
-				return Cam;
-			}
 		};
 		
 		Pos_Ring = new Pos_Ring(hardwareMap, telemetry, prcb);
 		Pos_Ring_TH = new Thread(Pos_Ring);
+		Pos_Ring.switch_cam("Ring");
 		
 		Pos_Ring_TH.start();
 		
@@ -133,7 +122,7 @@ public class Blue_Supreme_Auto extends LinearOpMode {
 		}
 		
 		// Set the camera to the 1080p positioning camera
-		Cam = "Pos";
+		Pos_Ring.switch_cam("Pos");
 		
 		// To begin we must move to a relative position so that we can see the VuMarks
 		// In this case we will just move forward until we see a VuMark
@@ -227,7 +216,7 @@ public class Blue_Supreme_Auto extends LinearOpMode {
 		// This should be the end of the Blue auto, nothing else should need to be done
 		
 		// end of the code, end all of the threads and just stop
-		running = false;
+		Pos_Ring.stop();
 		Pos_Ring_TH.interrupt();
 	}
 	
