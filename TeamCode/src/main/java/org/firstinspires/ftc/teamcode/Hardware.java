@@ -51,15 +51,17 @@ public class Hardware {
      * */
 
     public DcMotor frontLeft, backLeft, frontRight, backRight;    // Drive motors
-    
     public DcMotor Intake, Launcher, Flywheel;                    //Launcher motors
+    public DcMotor[] Drive_Motors;
+    public DcMotor[] All_Motors;
     
     public Servo Wobble;
+    public Servo[] Servos;
 
     Telemetry telemetry;
     HardwareMap hwMap;
 
-    private ElapsedTime Timer = new ElapsedTime();
+    private final ElapsedTime Timer = new ElapsedTime();
     public ElapsedTime timer = new ElapsedTime();
 
     public static final int ticksPerInch=56;
@@ -131,14 +133,21 @@ public class Hardware {
         frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         
+        Drive_Motors = new DcMotor[]{frontLeft, frontRight, backLeft, backRight};
+        All_Motors = new DcMotor[]{frontLeft, frontRight, backLeft, backRight, Intake, Launcher, Flywheel};
+    
         Wobble = hwMap.servo.get("wob");
+        
+        Servos = new Servo[] {Wobble};
         
     }
 
     // be sure to init all servos in initAutonomous()
     public void initAutonomous(){
         setDriveMotorMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        Wobble.setPosition(0);
+        for(Servo servo : Servos){
+            servo.setPosition(0);
+        }
         waiter(500);
     }
 
@@ -149,39 +158,8 @@ public class Hardware {
      * =======================================*/
 
     public void setDriveMotorMode(DcMotor.RunMode mode) {
-        switch (mode) {
-            case RUN_USING_ENCODER:
-                if (frontLeft.getMode() == DcMotor.RunMode.RUN_USING_ENCODER)
-                    break;
-                frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                break;
-            case RUN_WITHOUT_ENCODER:
-                if (frontLeft.getMode() == DcMotor.RunMode.RUN_WITHOUT_ENCODER)
-                    break;
-                frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                break;
-            case STOP_AND_RESET_ENCODER:
-                if (frontLeft.getMode() == DcMotor.RunMode.STOP_AND_RESET_ENCODER)
-                    break;
-                frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                break;
-            case RUN_TO_POSITION:
-                if (frontLeft.getMode() == DcMotor.RunMode.RUN_TO_POSITION)
-                    break;
-                frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                break;
+        for(DcMotor dcMotor : Drive_Motors){
+            dcMotor.setMode(mode);
         }
     }
 
@@ -420,21 +398,8 @@ public class Hardware {
     }
 
     public void setDriveMotorZeroPowerBehavior(DcMotor.ZeroPowerBehavior behavior) {
-        switch(behavior) {
-            case BRAKE:
-                if(frontLeft.getZeroPowerBehavior()==DcMotor.ZeroPowerBehavior.BRAKE)
-                    break;
-                frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-                frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-                backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-                backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);break;
-            case FLOAT:
-                if(frontLeft.getZeroPowerBehavior()==DcMotor.ZeroPowerBehavior.FLOAT)
-                    break;
-                frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-                frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-                backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-                backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);break;
+        for(DcMotor dcMotor : Drive_Motors){
+            dcMotor.setZeroPowerBehavior(behavior);
         }
     }
 

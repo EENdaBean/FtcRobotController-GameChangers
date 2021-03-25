@@ -14,68 +14,96 @@ public class speed implements Runnable {
 	
 	private final ElapsedTime Timer = new ElapsedTime();
 	
-	int target_speed;
+	int target_speed, speed = 0;
 	
-	speedCallback CB;
-	
-	public speed(HardwareMap hwmap, Telemetry tel, DcMotor tempMotor, speedCallback cb){
+	public speed(HardwareMap hwmap, Telemetry tel, DcMotor tempMotor){
 		hwMap = hwmap;
 		telemetry = tel;
 		motor = tempMotor;
-		CB = cb;
 	}
 	
-	double speed;
+	double power;
+	
+	boolean running, fire, canFire = false;
 	
 	@Override
 	public void run() {
+		running = true;
 		
 		if(motor.getMode() != DcMotor.RunMode.RUN_USING_ENCODER)
 			motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 		
 		int a1, a2;
 		
-		while(CB.running()){
-			target_speed = CB.speed();
-			
+		while(running){
 			a1 = motor.getCurrentPosition();
 			waiter(500);
 			a2 = motor.getCurrentPosition();
 			
-			if(a2-a1 < target_speed - 100){
-				speed = speed + 0.05;
+			speed = a2-a1;
+			
+			if(speed < target_speed - 100){
+				power = power + 0.05;
 			}
 			
-			if(a2-a1 < target_speed){
-				speed = speed + 0.01;
+			if(speed < target_speed){
+				power = power + 0.01;
 			}
 			
-			if(a2-a1 > target_speed){
-				speed = speed - 0.01;
+			if(speed > target_speed){
+				power = power - 0.01;
 			}
 			
-			if(a2-a1 > target_speed + 100){
-				speed = speed - 0.04;
+			if(speed > target_speed + 100){
+				power = power - 0.04;
 			}
 			
 			// launch a ring
-			CB.can_Fire(((a2 - a1) <= (target_speed + 10)) && ((a2 - a1) >= (target_speed - 10)), a2-a1);
-			if(CB.fire()) {
-				motor.setPower(speed);
+			
+			if(canFire) {
+				motor.setPower(power);
 			}else {
 				motor.setPower(0);
 				motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-				speed = 0.5;
+				power = 0.5;
 				motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 			}
 		}
 		
 	}
 	
+	public synchronized void set_Speed(int speed){
+		target_speed = speed;
+	}
+	
+	public synchronized void spin(boolean Fire){
+		canFire = Fire;
+	}
+	
+	public synchronized void start_spinning(){
+		fire = true;
+	}
+	
+	public synchronized void stop_spinning(){
+		fire = false;
+	}
+	
+	public synchronized boolean can_Fire(){
+		return canFire;
+	}
+	
+	public synchronized void stop(){
+		running = false;
+	}
+	
+	public synchronized int[] speed(){
+		return new int[]{speed, target_speed};
+	}
+	
 	public void waiter(int time) {
 		Timer.reset();
 		while (Timer.milliseconds() < time){
-			if(!CB.running()){
+			if(!running){
 				break;
 			}
 		}

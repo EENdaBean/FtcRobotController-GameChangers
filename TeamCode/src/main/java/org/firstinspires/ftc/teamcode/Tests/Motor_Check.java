@@ -15,12 +15,14 @@ public class Motor_Check extends LinearOpMode {
 	int initial, end;
 	DcMotor[] motors;
 	
+	boolean TF = false;
+	
 	@Override
 	public void runOpMode() {
 		r.initRobot(hardwareMap, telemetry);
 		r.initAutonomous();
 		
-		motors = new DcMotor[]{r.frontLeft, r.frontRight, r.backLeft, r.backRight, r.Flywheel, r.Launcher, r.Intake};
+		motors = r.All_Motors;
 		
 		telemetry.setAutoClear(false);
 		
@@ -47,22 +49,34 @@ public class Motor_Check extends LinearOpMode {
 		
 		// To start we are going to test our driving wheels
 		// actually.. lets just do everything in one loop
-		
 		for (DcMotor motor : motors) {
 			initial = motor.getCurrentPosition();
 			motor.setPower(0.6);
 			r.waiter(500);
 			end = motor.getCurrentPosition();
 			motor.setPower(0);
-			telemetry.addLine()
-					.addData("inital", initial)
+			telemetry.addLine(motor.getPortNumber() + " |")
+					.addData("initial", initial)
 					.addData("ending", end)
 					.addData("Error?", initial == end);
 			telemetry.update();
+			
+			if(initial == end){
+				TF = true;
+			}
+			
 		}
 		
+		telemetry.addData("Any errors?", TF);
+		telemetry.update();
+		
+		telemetry.addLine("==============================");
+		telemetry.addLine("This concludes the test, please refer to the information above for any errors with the motors! Have a good day ;)");
+		telemetry.update();
+		
 		// Continue displaying the telemetry
-		while (!isStopRequested());
+		while (true) if (isStopRequested()) break;
+		
 		
 	}
 }
