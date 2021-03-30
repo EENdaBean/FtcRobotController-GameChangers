@@ -22,7 +22,7 @@ public class TeleOp_Dev extends OpMode {
 
     @Override
     public void init() {
-        r.initRobot(hardwareMap, telemetry);
+        r.initRobot(hardwareMap,telemetry);
     
         Pos_RingCallback prcb = new Pos_RingCallback() {
             @Override
@@ -39,9 +39,11 @@ public class TeleOp_Dev extends OpMode {
     
         Pos_Ring = new Pos_Ring(hardwareMap, telemetry, prcb);
         Pos_Ring_TH = new Thread(Pos_Ring);
-        Pos_Ring.switch_cam("Pos");
         
         Pos_Ring_TH.start();
+    
+        Pos_Ring.switch_cam("Pos");
+        Pos_Ring.switchDetection("Pos");
         
     }
     

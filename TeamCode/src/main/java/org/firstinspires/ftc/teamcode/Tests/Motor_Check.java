@@ -19,7 +19,7 @@ public class Motor_Check extends LinearOpMode {
 	
 	@Override
 	public void runOpMode() {
-		r.initRobot(hardwareMap, telemetry);
+		r.initRobot(hardwareMap,telemetry);
 		r.initAutonomous();
 		
 		motors = r.All_Motors;

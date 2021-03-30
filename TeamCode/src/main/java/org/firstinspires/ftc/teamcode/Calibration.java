@@ -35,7 +35,7 @@ public class Calibration extends LinearOpMode {
 		th = new Thread(rn);
 		th.start();
 		
-		r.initRobot(hardwareMap, telemetry);
+		r.initRobot(hardwareMap,telemetry);
 		
 		r.setDriveMotorMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 		

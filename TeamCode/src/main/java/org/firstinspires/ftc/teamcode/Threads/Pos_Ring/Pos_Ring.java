@@ -42,6 +42,13 @@ import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.FRONT;
 
+
+/**
+ * This class is a thread that detects rings and returns our position
+ * This class was originally designed {@link org.firstinspires.ftc.robotcontroller.external.samples.ConceptVuforiaUltimateGoalNavigation here} and {@link org.firstinspires.ftc.robotcontroller.external.samples.ConceptTensorFlowObjectDetectionSwitchableCameras here}
+ * <p>
+ * We have made this class threaded because we want it to run while we are using {@link org.firstinspires.ftc.teamcode.TeleOp TeleOp} without slowing down your commands.
+ */
 public class Pos_Ring implements Runnable {
 	
 	HardwareMap hwMap;           //Create a HardwareMap
@@ -82,25 +89,36 @@ public class Pos_Ring implements Runnable {
 	boolean running = true;
 	String Rings = "none";
 	
+	String PosOrRing = "Ring";
+	
 	List<VuforiaTrackable> allTrackables = new ArrayList<>();
 	
 	//End Position vars
 	
+	/**
+	 *
+	 * @param hwmap The hardware map of the robot
+	 * @param tm Telemetry
+	 * @param CB Callback
+	 *
+	 * @see Pos_RingCallback Pos_RingCallback for more info on the callback
+	 */
 	public Pos_Ring(HardwareMap hwmap, Telemetry tm, Pos_RingCallback CB){ //Init the class
 		hwMap = hwmap;
 		telemetry = tm;
 		cb = CB;
-		initVuforia();
-		initTfod();
 	}
 	
 	@Override
 	public void run() { //Main method, this is what will run everything
 		
+		initVuforia();
+		initTfod();
+		
 		tfod.activate();
 		
 		while(running){
-			if (tfod != null) {
+			if (tfod != null && PosOrRing.equals("Rings")) {
 				// getUpdatedRecognitions() will return null if no new information is available since
 				// the last time that call was made.
 				Rings = "none";
@@ -124,37 +142,39 @@ public class Pos_Ring implements Runnable {
 			
 			// check all the trackable targets to see which one (if any) is visible.
 			boolean targetVisible = false;
-			for (VuforiaTrackable trackable : allTrackables) {
-				if (((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible()) {
-//					telemetry.addData("Visible Target", trackable.getName());
-					targetVisible = true;
-					
-					// getUpdatedRobotLocation() will return null if no new information is available since
-					// the last time that call was made, or if the trackable is not currently visible.
-					OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)trackable.getListener()).getUpdatedRobotLocation();
-					if (robotLocationTransform != null) {
-						lastLocation = robotLocationTransform;
+			if(PosOrRing.equals("Pos")) {
+				for (VuforiaTrackable trackable : allTrackables) {
+					if (((VuforiaTrackableDefaultListener) trackable.getListener()).isVisible()) {
+						//					telemetry.addData("Visible Target", trackable.getName());
+						targetVisible = true;
+						
+						// getUpdatedRobotLocation() will return null if no new information is available since
+						// the last time that call was made, or if the trackable is not currently visible.
+						OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener) trackable.getListener()).getUpdatedRobotLocation();
+						if (robotLocationTransform != null) {
+							lastLocation = robotLocationTransform;
+						}
+						break;
 					}
-					break;
 				}
-			}
-			
-			// Provide feedback as to where the robot is located (if we know).
-			if (targetVisible) {
-				// express position (translation) of robot in inches.
-				VectorF translation = lastLocation.getTranslation();
-//				telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
-//						translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
-				xyz[0] = translation.get(0) / mmPerInch; // X-axis
-				xyz[1] = translation.get(1) / mmPerInch; // Y-axis
-				xyz[2] = translation.get(2) / mmPerInch; // Z-axis (not used but here for any future projects)
 				
-				// express the rotation of the robot in degrees.
-				Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
-//				telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
-				xyz[3] = rotation.thirdAngle; // Heading in deg
+				// Provide feedback as to where the robot is located (if we know).
+				if (targetVisible) {
+					// express position (translation) of robot in inches.
+					VectorF translation = lastLocation.getTranslation();
+					//				telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
+					//						translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
+					xyz[0] = translation.get(0) / mmPerInch; // X-axis
+					xyz[1] = translation.get(1) / mmPerInch; // Y-axis
+					xyz[2] = translation.get(2) / mmPerInch; // Z-axis (not used but here for any future projects)
+					
+					// express the rotation of the robot in degrees.
+					Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
+					//				telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
+					xyz[3] = rotation.thirdAngle; // Heading in deg
+				}
+				//				telemetry.addData("Visible Target", "none");
 			}
-			//				telemetry.addData("Visible Target", "none");
 			
 			
 			cb.pos(xyz, targetVisible); //send the position back through the callback to the thread that started this thread
@@ -169,6 +189,13 @@ public class Pos_Ring implements Runnable {
 	}
 	
 	//Change what the input is that you want to pass here
+	
+	/**
+	 * Switch which camera you are using]
+	 * <p>
+	 * <b>Pos</b> for position and <b>Ring</b> for the ring camera
+	 * @param camera switch between the cameras being used
+	 */
 	public synchronized void switch_cam(String camera){
 		if ("Pos".equals(camera)) {
 			switchableCamera.setActiveCamera(webcam1);
@@ -178,8 +205,28 @@ public class Pos_Ring implements Runnable {
 	}
 	
 	// Stop the thread
+	
+	/**
+	 * Stop the thread
+	 */
 	public synchronized void stop(){
 		running = false;
+	}
+	
+	/**
+	 * Change what we are searching for
+	 * @param Pos_or_Ring <b>Pos</b> for position and <b>Ring</b> for rings
+	 */
+	public synchronized void switchDetection(String Pos_or_Ring){
+		PosOrRing = Pos_or_Ring;
+	}
+	
+	/**
+	 * Get what we are detecting
+	 * @return String of what we are searching for <b>Pos</b> for position and <b>Ring</b> for rings
+	 */
+	public synchronized String getDetection(){
+		return PosOrRing;
 	}
 	
 	//Point vuforia at the camera that you want to use

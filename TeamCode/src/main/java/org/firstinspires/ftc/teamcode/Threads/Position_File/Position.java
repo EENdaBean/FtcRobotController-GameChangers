@@ -1,9 +1,7 @@
 package org.firstinspires.ftc.teamcode.Threads.Position_File;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.vuforia.Vuforia;
 
-import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
@@ -13,7 +11,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
-import org.firstinspires.ftc.teamcode.Hardware;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +46,6 @@ public class Position implements Runnable{
 	 * */
 	
 	HardwareMap hwMap;           //Create a HardwareMap
-	Hardware r = new Hardware(); //Create hardware class for camera
 	Telemetry telemetry;         //Create logger
 	PosThread_Callback ptc;      //Add the callback interface
 	

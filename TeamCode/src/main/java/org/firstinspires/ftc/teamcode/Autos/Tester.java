@@ -1,21 +1,20 @@
 package org.firstinspires.ftc.teamcode.Autos;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Hardware;
 
 @Autonomous(name = "Tester", group = "Test")
-//@Disabled
+@Disabled
 public class Tester extends LinearOpMode {
 	
 	Hardware r = new Hardware();
 	
 	@Override
 	public void runOpMode() {
-		r.initRobot(hardwareMap, telemetry);
+		r.initRobot(hardwareMap,telemetry);
 		r.initAutonomous();
 		
 		int targetSpeed = 700; //This means we are going 700 ticks ber 1/2 second which is 70rev/s or 4200rev/min

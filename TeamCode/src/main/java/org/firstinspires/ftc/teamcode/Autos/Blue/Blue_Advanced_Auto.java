@@ -39,7 +39,7 @@ public class Blue_Advanced_Auto extends LinearOpMode {
 	@Override
 	public void runOpMode() throws InterruptedException {
 		AutoTransitioner.transitionOnStop(this, "TeleOp_Basic");
-		r.initRobot(hardwareMap, telemetry);
+		r.initRobot(hardwareMap,telemetry);
 		r.initAutonomous();
 		
 		RingsThread_Callback rtcb = new RingsThread_Callback() {

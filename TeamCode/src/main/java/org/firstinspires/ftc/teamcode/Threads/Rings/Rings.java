@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.Threads.Rings;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.vuforia.Vuforia;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -11,14 +10,12 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
-import org.firstinspires.ftc.teamcode.Hardware;
 
 import java.util.List;
 
 public class Rings implements Runnable {
 	
 	HardwareMap hwMap;           //Create a HardwareMap
-	Hardware r = new Hardware(); //Create hardware class for camera TODO: along with IMU
 	Telemetry telemetry;         //Create logger
 	RingsThread_Callback rtc;      //Add the callback interface
 	

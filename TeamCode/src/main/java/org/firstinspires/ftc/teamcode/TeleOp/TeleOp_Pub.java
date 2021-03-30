@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.TeleOp;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -17,8 +16,8 @@ public class TeleOp_Pub extends OpMode {
 
     @Override
     public void init() {
-
-        r.initRobot(hardwareMap, telemetry);
+    
+        r.initRobot(hardwareMap,telemetry);
         //r.deInitColor(hardwareMap);
     }
 

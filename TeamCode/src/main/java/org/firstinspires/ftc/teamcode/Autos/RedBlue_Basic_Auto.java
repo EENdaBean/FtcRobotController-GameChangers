@@ -15,7 +15,7 @@ public class RedBlue_Basic_Auto extends LinearOpMode {
     @Override
     public void runOpMode() {
         AutoTransitioner.transitionOnStop(this, "TeleOp_Basic");
-        r.initRobot(hardwareMap, telemetry);
+        r.initRobot(hardwareMap,telemetry);
         r.initAutonomous();
 
         // Wait for the game to start (driver presses PLAY)

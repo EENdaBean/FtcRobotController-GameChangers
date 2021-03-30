@@ -50,7 +50,8 @@ public class Blue_Supreme_Auto extends LinearOpMode {
 	
 	double[] location	 			 = {0,0,0,0}; //x, y, z, heading
 	boolean is_Targeted 			 = false;
-	static final int[] target1 		 = {27,56};  //target of block 1
+	static final int[] target1 		 = {27,56};  //target of block 17\
+	
 	static final int[] target2 		 = {47,25};  //target of block 2
 	static final int[] target3       = {47,26};  //target of block 3
 	static final int[] target_launch = {15,35};  //target of the location to launch rings
@@ -67,7 +68,7 @@ public class Blue_Supreme_Auto extends LinearOpMode {
 	@Override
 	public void runOpMode() {
 		AutoTransitioner.transitionOnStop(this, "TeleOp_Basic");
-		r.initRobot(hardwareMap, telemetry);
+		r.initRobot(hardwareMap,telemetry);
 		r.initAutonomous();
 		
 		Pos_RingCallback prcb = new Pos_RingCallback() {
@@ -86,10 +87,11 @@ public class Blue_Supreme_Auto extends LinearOpMode {
 		Pos_Ring = new Pos_Ring(hardwareMap, telemetry, prcb);
 		Pos_Ring_TH = new Thread(Pos_Ring);
 		Pos_Ring.switch_cam("Ring");
+		Pos_Ring.switchDetection("Ring");
 		
 		Pos_Ring_TH.start();
 		
-		while(!opModeIsActive()){
+		while(!opModeIsActive() && !isStopRequested()){
 			telemetry.addLine("Position - ")
 					.addData("X", "%.0f" ,location[0])
 					.addData("Y", "%.0f", location[1])
@@ -98,6 +100,7 @@ public class Blue_Supreme_Auto extends LinearOpMode {
 					.addData("Visable", is_Targeted);
 			telemetry.addLine("Rings - ")
 					.addData("Amount",amount);
+			telemetry.addData("Detecting", Pos_Ring.getDetection());
 			telemetry.update();
 			if(isStopRequested()){
 				running = false;
@@ -123,6 +126,7 @@ public class Blue_Supreme_Auto extends LinearOpMode {
 		
 		// Set the camera to the 1080p positioning camera
 		Pos_Ring.switch_cam("Pos");
+		Pos_Ring.switchDetection("Pos");
 		
 		// To begin we must move to a relative position so that we can see the VuMarks
 		// In this case we will just move forward until we see a VuMark
@@ -133,7 +137,7 @@ public class Blue_Supreme_Auto extends LinearOpMode {
 			telemetry.update();
 			r.setDriveMotorPower(0.4);
 			//TODO: If this doesn't get us in view we need to move at a different angle
-		} while(!is_Targeted && opModeIsActive());
+		} while(!is_Targeted && !isStopRequested());
 		
 		r.setToStill();
 		
@@ -207,7 +211,7 @@ public class Blue_Supreme_Auto extends LinearOpMode {
 			telemetry.addData("Speed", a2-a1);
 			telemetry.addData("Target Speed", targetSpeed);
 			telemetry.update();
-		}while(launch != 3 && opModeIsActive());
+		}while(launch != 3 && !isStopRequested());
 		r.Flywheel.setPower(0);
 		
 		// Now we move to the line for those points
@@ -223,7 +227,7 @@ public class Blue_Supreme_Auto extends LinearOpMode {
 	private void moveTo(int[] target){
 		placed = false;
 		int i = 0;
-		while(!placed && opModeIsActive()){
+		while(!placed && !isStopRequested()){
 			angle = Math.atan2((target[1] - location[1]), (target[0] - location[0])); // atan2(Y-axis, X-axis)
 			
 			double power1;
@@ -264,20 +268,25 @@ public class Blue_Supreme_Auto extends LinearOpMode {
 					.addData("Z", "%.0f", location[2])
 					.addData("H", "%.0f", location[3])
 					.addData("Visable", is_Targeted)
-					.addData("Rotation", rotation);
-			telemetry.addLine("Rings - ")
-					.addData("Amount", amount);
-			telemetry.addData("Working?", i);
-			telemetry.addData("Working?", i);
-			telemetry.update();
+					.addData("Rotation", "%.0f", rotation);
+			telemetry.addLine("Target  - ")
+					.addData("x", "%.0f", target[0])
+					.addData("Y", "%.0f", target[1])
+					.addData("Rotation", "%.0f", "90");
+			telemetry.addLine("Powers - ")
+					.addData("Front Left", power1)
+					.addData("Front Right", power2)
+					.addData("Back Left", power3)
+					.addData("Back Right", power4);
 			i++;
-			if(target[0]-location[0] >= -2
-					   && target[0]-location[0] <= 2
-					   && target[1]-location[1] >= -2
-					   && target[1]-location[1] <= 2){
+			if(target[0]-location[0] >= -1
+				   && target[0]-location[0] <= 1
+				   && target[1]-location[1] >= -1
+				   && target[1]-location[1] <= 1){
 				placed = true;
 			}
 		}
+		telemetry.update();
 		r.setToStill(); // Stop moving, in the case we don't have any more movement commands after
 	}
 	

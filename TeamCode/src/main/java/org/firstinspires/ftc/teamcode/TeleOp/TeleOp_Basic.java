@@ -17,21 +17,15 @@ public class TeleOp_Basic extends OpMode {
     boolean intake         = false;
     boolean intake_running = false;
     
-    // Threading booleans
-    boolean fire    = false; // If we want to spin up the flywheel
-
     Hardware r = new Hardware();
     
-    double speed = 0;
-    
-    int target_speed = 675;
+    static final int target_speed = 675;
     
     speed sp;
     Thread sT;
     @Override
     public void init() {
-
-        r.initRobot(hardwareMap, telemetry);
+        r.initRobot(hardwareMap,telemetry);
         r.Flywheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         
         sp = new speed(telemetry, r.Flywheel);

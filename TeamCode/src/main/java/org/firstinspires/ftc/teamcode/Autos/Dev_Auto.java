@@ -35,8 +35,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.navigation.Position;
-import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
@@ -101,8 +99,8 @@ public class Dev_Auto extends LinearOpMode {
         // first.
         initVuforia();
         initTfod();
-
-        r.initRobot(hardwareMap, telemetry);
+    
+        r.initRobot(hardwareMap,telemetry);
 
         /**
          * Activate TensorFlow Object Detection before we wait for the start command.

@@ -69,32 +69,41 @@ public class speed implements Runnable {
 		
 	}
 	
-	// Set the speed of the Flywheel
+	/**
+	 * Set the speed of the Flywheel
+	 *
+	 * @param speed set the target speed we want the flywheel to spin
+ 	 */
+
 	public synchronized void set_Speed(int speed){
 		target_speed = speed;
 	}
 	
-	// Spin the Flywheel in TeleOp
+	/**
+	 * Spin the Flywheel in TeleOp
+	 *
+	 * @param Fire tell this thread to start or stop spinning
+ 	 */
 	public synchronized void spin(boolean Fire){
 		canFire = Fire;
 	}
 	
-	// Start spinning in Auto
+	/** Start spinning in Auto */
 	public synchronized void start_spinning(){
 		fire = true;
 	}
 	
-	// Stop spinning is Auto
+	/** Stop spinning is Auto */
 	public synchronized void stop_spinning(){
 		fire = false;
 	}
 	
-	// Tell the main thread if we can fire a ring
+	/** Tell the main thread if we can fire a ring */
 	public synchronized boolean can_Fire(){
 		return canFire;
 	}
 	
-	// Stop the thread
+	/** Stops the thread */
 	public synchronized void stop(){
 		running = false;
 	}

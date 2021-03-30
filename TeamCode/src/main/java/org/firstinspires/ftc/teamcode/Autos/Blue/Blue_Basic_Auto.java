@@ -9,7 +9,6 @@ package org.firstinspires.ftc.teamcode.Autos.Blue;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.AutoTransitioner;
 import org.firstinspires.ftc.teamcode.Hardware;
@@ -23,7 +22,7 @@ public class Blue_Basic_Auto extends LinearOpMode {
     @Override
     public void runOpMode() {
         AutoTransitioner.transitionOnStop(this, "TeleOp_Basic");
-        r.initRobot(hardwareMap, telemetry);
+        r.initRobot(hardwareMap,telemetry);
         r.initAutonomous();
         
         waitForStart();//Wait for us to start the game
