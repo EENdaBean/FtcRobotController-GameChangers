@@ -37,9 +37,20 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+/**
+ * This is the main reference class for the robot
+ * <p>
+ * This is where all of our main methods are stored and where we initiate motors, servos, sensors,
+ * etc...
+ * <p>
+ * To use this class:
+ *      <pre>
+ *          Hardware r = new Hardware();
+ *      </pre>
+ * */
 public class Hardware {
-    //created by team 9161 overload on 1/31/20
-
+    //created by team 9161 Overload
+    
     /*
      *
      * To add DC motor, use "public DCMotor %var name%;"
@@ -49,40 +60,66 @@ public class Hardware {
      * ====!then refer to initHardware()!====
      *
      * */
-
-    public DcMotor frontLeft, backLeft, frontRight, backRight;    // Drive motors
-    public DcMotor Intake, Launcher, Flywheel;                    //Launcher motors
+    /**
+     * Front Left Drive Motor
+     */
+    public DcMotor frontLeft,
+    /**
+     * Back Left Drive Motor
+     */
+    backLeft,
+    /**
+     * Front Right Drive Motor
+     */
+    frontRight,
+    /**
+     * Back Right Drive Motor
+     */
+    backRight;
+    /** Intake motor */
+    public DcMotor Intake,
+    /** Launcher motor */
+    Launcher,
+    /** Flywheel motor */
+    Flywheel;
+    /** All of your driving motors */
     public DcMotor[] Drive_Motors;
+    /** All of your motors */
     public DcMotor[] All_Motors;
     
+    /** Wobble Servo */
     public Servo Wobble;
+    /** All the servos */
     public Servo[] Servos;
-
+    
     Telemetry telemetry;
     HardwareMap hwMap;
-
+    
     private final ElapsedTime Timer = new ElapsedTime();
     public ElapsedTime timer = new ElapsedTime();
-
+    
     public static final int ticksPerInch=56;
-
+    
     public static final int encoderSafeZone=50;/*a motor must be within this many ticks of its
    target to be considered "on target"*/
 
 //    public static final int minRotDist=0;
-
+    
     //angle variables
 //    public static final double ticksPerDeg=9.7; //the number of ticks it takes for the axle of the motor to rotate 1 deg, doing a (28(5*5*5))/360 = 9.7
 
 //    public static final int GoalHeight=92;  //Height of the goal from the ground
-
     
     public void initRobot(HardwareMap spareMap, Telemetry tempTelemetry){
         hwMap = spareMap;
         telemetry = tempTelemetry;
         initHardware();
     }
-
+    
+    /**
+     * Use this method to init the hardware on your robot
+     * This is ment to run at the beginning of the code or in the init()
+     */
     public void initHardware() {
         /*
          *
@@ -135,14 +172,16 @@ public class Hardware {
         
         Drive_Motors = new DcMotor[]{frontLeft, frontRight, backLeft, backRight};
         All_Motors = new DcMotor[]{frontLeft, frontRight, backLeft, backRight, Intake, Launcher, Flywheel};
-    
+        
         Wobble = hwMap.servo.get("wob");
         
         Servos = new Servo[] {Wobble};
         
     }
-
-    // be sure to init all servos in initAutonomous()
+    
+    /**
+     * This method is used to get the robot ready to run during autonomous
+     */
     public void initAutonomous(){
         setDriveMotorMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         for(Servo servo : Servos){
@@ -150,113 +189,181 @@ public class Hardware {
         }
         waiter(500);
     }
-
+    
     /*=======================================
      *
      * =============Do not edit===============
      *
      * =======================================*/
-
+    
+    /**
+     * Set all drive motors to the same mode
+     * @param mode
+     */
     public void setDriveMotorMode(DcMotor.RunMode mode) {
         for(DcMotor dcMotor : Drive_Motors){
             dcMotor.setMode(mode);
         }
     }
-
+    
     //methods to set the four drive wheels in specific directions
+    
+    /**
+     * Move the robot forward a specified distance in inches
+     * @param distance how far you want to move
+     */
     public void setMotorEncoderForward(int distance){
         frontLeft.setTargetPosition(distance);
         frontRight.setTargetPosition(distance);
         backLeft.setTargetPosition(distance);
         backRight.setTargetPosition(distance);
     }
+    /**
+     * Move the robot backward a specified distance in inches
+     * @param distance how far you want to move
+     */
     public void setMotorEncoderBackward(int distance) {
         frontLeft.setTargetPosition(-distance);
         frontRight.setTargetPosition(-distance);
         backLeft.setTargetPosition(-distance);
         backRight.setTargetPosition(-distance);
     }
+    /**
+     * Move the robot left a specified distance in inches
+     * @param distance how far you want to move
+     */
     public void setMotorEncoderLeft(int distance) {
         frontLeft.setTargetPosition(-distance);
         frontRight.setTargetPosition(distance);
         backLeft.setTargetPosition(distance);
         backRight.setTargetPosition(-distance);
     }
+    /**
+     * Move the robot right a specified distance in inches
+     * @param distance how far you want to move
+     */
     public void setMotorEncoderRight(int distance) {
         frontLeft.setTargetPosition(distance);
         frontRight.setTargetPosition(-distance);
         backLeft.setTargetPosition(-distance);
         backRight.setTargetPosition(distance);
     }
+    /**
+     * Rotate the robot Clockwise a specified distance in inches
+     * @param distance how far you want to move
+     */
     public void setMotorEncoderClockwise(int distance) {
         frontLeft.setTargetPosition(distance);
         frontRight.setTargetPosition(-distance);
         backLeft.setTargetPosition(distance);
         backRight.setTargetPosition(-distance);
     }
+    /**
+     * Rotate the robot CounterClockwise a specified distance in inches
+     * @param distance how far you want to move
+     */
     public void setMotorEncoderCounterwise(int distance) {
         frontLeft.setTargetPosition(-distance);
         frontRight.setTargetPosition(distance);
         backLeft.setTargetPosition(-distance);
         backRight.setTargetPosition(distance);
     }
-
+    
+    /**
+     * Set all Drive_Motors to the same power to move forward
+     * @param power double from 0 to 1
+     * @see #Drive_Motors for all your drive motors
+     */
     public void setToForward(double power) {
         frontLeft.setPower(power);
         frontRight.setPower(power);
         backLeft.setPower(power);
         backRight.setPower(power);
     }
+    /**
+     * Set all Drive_Motors to the same power to move backward
+     * @param power double from 0 to 1
+     * @see #Drive_Motors for all your drive motors
+     */
     public void setToBackward(double power) {
         frontLeft.setPower(-1 * power);
         frontRight.setPower(-1 * power);
         backLeft.setPower(-1 * power);
         backRight.setPower(-1 * power);
     }
+    /**
+     * Set all Drive_Motors to the same power to rotate Counterclockwise
+     * @param power double from 0 to 1
+     * @see #Drive_Motors for all your drive motors
+     */
     public void setToCounterwise(double power) {
         frontLeft.setPower(-1 * power);
         frontRight.setPower(1 * power);
         backLeft.setPower(-1 * power);
         backRight.setPower(1 * power);
     }
+    /**
+     * Set all Drive_Motors to the same power to rotate Clockwise
+     * @param power double from 0 to 1
+     * @see #Drive_Motors for all your drive motors
+     */
     public void setToClockwise(double power) {
         frontLeft.setPower(1 * power);
         frontRight.setPower(-1 * power);
         backLeft.setPower(1 * power);
         backRight.setPower(-1 * power);
     }
+    /**
+     * Set all Drive_Motors to the same power to move right
+     * @param power double from 0 to 1
+     * @see #Drive_Motors for all your drive motors
+     */
     public void setToRight(double power) {
         frontLeft.setPower(1 * power);
         frontRight.setPower(-1 * power);
         backLeft.setPower(-1 * power);
         backRight.setPower(1 * power);
     }
+    /**
+     * Set all Drive_Motors to the same power to move left
+     * @param power double from 0 to 1
+     * @see #Drive_Motors for all your drive motors
+     */
     public void setToLeft(double power) {
         frontLeft.setPower(-1 * power);
         frontRight.setPower(1 * power);
         backLeft.setPower(1 * power);
         backRight.setPower(-1 * power);
     }
+    
+    /**
+     * Stop moving the robot
+     */
     public void setToStill() {
         frontLeft.setPower(0);
         frontRight.setPower(0);
         backLeft.setPower(0);
         backRight.setPower(0);
     }
-
+    
+    /**
+     * Move forward a specified distance using the encoders
+     * @param power double from 0 to 1
+     * @param distance in inches
+     */
     public void driveForwardEncoder(double power, int distance) {
-
+        
         int frontLDist, frontRDist, backLDist, backRDist;
         setMotorEncoderForward(distance*ticksPerInch+frontLeft.getCurrentPosition());
         setDriveMotorMode(DcMotor.RunMode.RUN_TO_POSITION);
-
+        
         setToForward(power);
         do{
             frontLDist=Math.abs(frontLeft.getTargetPosition()-frontLeft.getCurrentPosition());
             frontRDist=Math.abs(frontRight.getTargetPosition()-frontRight.getCurrentPosition());
             backLDist=Math.abs(backLeft.getTargetPosition()-backLeft.getCurrentPosition());
             backRDist=Math.abs(backRight.getTargetPosition()-backRight.getCurrentPosition());
-
+            
             telemetry.addData("frontLeft distanceFrom: ", frontLeft.getCurrentPosition());
             telemetry.addData("frontRight distanceFrom: ",frontRight.getCurrentPosition());
             telemetry.addData("backLeft distanceFrom: ",backLeft.getCurrentPosition());
@@ -270,18 +377,23 @@ public class Hardware {
         );
         setToStill();
     }
+    /**
+     * Move backward a specified distance using the encoders
+     * @param power double from 0 to 1
+     * @param distance in inches
+     */
     public void driveBackwardEncoder(double power, int distance) {
         int frontLDist, frontRDist, backLDist, backRDist;
         setMotorEncoderBackward(distance*ticksPerInch+frontLeft.getCurrentPosition());
         setDriveMotorMode(DcMotor.RunMode.RUN_TO_POSITION);
-
+        
         setToForward(power);
         do{
             frontLDist=Math.abs(frontLeft.getTargetPosition()-frontLeft.getCurrentPosition());
             frontRDist=Math.abs(frontRight.getTargetPosition()-frontRight.getCurrentPosition());
             backLDist=Math.abs(backLeft.getTargetPosition()-backLeft.getCurrentPosition());
             backRDist=Math.abs(backRight.getTargetPosition()-backRight.getCurrentPosition());
-
+            
             telemetry.addData("frontLeft distanceFrom: ",frontLDist);
             telemetry.addData("frontRight distanceFrom: ",frontRDist);
             telemetry.addData("backLeft distanceFrom: ",backLDist);
@@ -295,19 +407,24 @@ public class Hardware {
         );
         setToStill();
     }
+    /**
+     * Move left a specified distance using the encoders
+     * @param power double from 0 to 1
+     * @param distance in inches
+     */
     public void driveLeftEncoder(double power, int distance) {
-
+        
         int frontLDist, frontRDist, backLDist, backRDist;
         setMotorEncoderLeft(distance*ticksPerInch+frontLeft.getCurrentPosition());
         setDriveMotorMode(DcMotor.RunMode.RUN_TO_POSITION);
-
+        
         setToForward(power);
         do{
             frontLDist=Math.abs(frontLeft.getTargetPosition()-frontLeft.getCurrentPosition());
             frontRDist=Math.abs(frontRight.getTargetPosition()-frontRight.getCurrentPosition());
             backLDist=Math.abs(backLeft.getTargetPosition()-backLeft.getCurrentPosition());
             backRDist=Math.abs(backRight.getTargetPosition()-backRight.getCurrentPosition());
-
+            
             telemetry.addData("frontLeft distanceFrom: ",frontLDist);
             telemetry.addData("frontRight distanceFrom: ",frontRDist);
             telemetry.addData("backLeft distanceFrom: ",backLDist);
@@ -321,18 +438,23 @@ public class Hardware {
         );
         setToStill();
     }
+    /**
+     * Move right a specified distance using the encoders
+     * @param power double from 0 to 1
+     * @param distance in inches
+     */
     public void driveRightEncoder(double power, int distance) {
         int frontLDist, frontRDist, backLDist, backRDist;
         setMotorEncoderRight(distance*ticksPerInch+frontLeft.getCurrentPosition());
         setDriveMotorMode(DcMotor.RunMode.RUN_TO_POSITION);
-
+        
         setToForward(power);
         do{
             frontLDist=Math.abs(frontLeft.getTargetPosition()-frontLeft.getCurrentPosition());
             frontRDist=Math.abs(frontRight.getTargetPosition()-frontRight.getCurrentPosition());
             backLDist=Math.abs(backLeft.getTargetPosition()-backLeft.getCurrentPosition());
             backRDist=Math.abs(backRight.getTargetPosition()-backRight.getCurrentPosition());
-
+            
             telemetry.addData("frontLeft distanceFrom: ",frontLDist);
             telemetry.addData("frontRight distanceFrom: ",frontRDist);
             telemetry.addData("backLeft distanceFrom: ",backLDist);
@@ -346,18 +468,23 @@ public class Hardware {
         );
         setToStill();
     }
+    /**
+     * Rotate Clockwise a specified distance using the encoders
+     * @param power double from 0 to 1
+     * @param distance in inches
+     */
     public void turnClockwiseEncoder(double power, int distance) {
         int frontLDist, frontRDist, backLDist, backRDist;
         setMotorEncoderClockwise(distance*ticksPerInch+frontLeft.getCurrentPosition());
         setDriveMotorMode(DcMotor.RunMode.RUN_TO_POSITION);
-
+        
         setToForward(power);
         do{
             frontLDist=Math.abs(frontLeft.getTargetPosition()-frontLeft.getCurrentPosition());
             frontRDist=Math.abs(frontRight.getTargetPosition()-frontRight.getCurrentPosition());
             backLDist=Math.abs(backLeft.getTargetPosition()-backLeft.getCurrentPosition());
             backRDist=Math.abs(backRight.getTargetPosition()-backRight.getCurrentPosition());
-
+            
             telemetry.addData("frontLeft distanceFrom: ",frontLDist);
             telemetry.addData("frontRight distanceFrom: ",frontRDist);
             telemetry.addData("backLeft distanceFrom: ",backLDist);
@@ -371,18 +498,23 @@ public class Hardware {
         );
         setToStill();
     }
+    /**
+     * Rotate Counterclockwise a specified distance using the encoders
+     * @param power double from 0 to 1
+     * @param distance in inches
+     */
     public void turnCounterwiseEncoder(double power, int distance) {
         int frontLDist, frontRDist, backLDist, backRDist;
         setMotorEncoderCounterwise(distance * ticksPerInch + frontLeft.getCurrentPosition());
         setDriveMotorMode(DcMotor.RunMode.RUN_TO_POSITION);
-
+        
         setToForward(power);
         do {
             frontLDist = Math.abs(frontLeft.getTargetPosition() - frontLeft.getCurrentPosition());
             frontRDist = Math.abs(frontRight.getTargetPosition() - frontRight.getCurrentPosition());
             backLDist = Math.abs(backLeft.getTargetPosition() - backLeft.getCurrentPosition());
             backRDist = Math.abs(backRight.getTargetPosition() - backRight.getCurrentPosition());
-
+            
             telemetry.addData("frontLeft distanceFrom: ", frontLDist);
             telemetry.addData("frontRight distanceFrom: ", frontRDist);
             telemetry.addData("backLeft distanceFrom: ", backLDist);
@@ -396,22 +528,32 @@ public class Hardware {
         );
         setToStill();
     }
-
+    
+    /**
+     * Set the behavior of the motors once you stop applying power
+     * @param behavior FLOAT, BREAK
+     */
     public void setDriveMotorZeroPowerBehavior(DcMotor.ZeroPowerBehavior behavior) {
         for(DcMotor dcMotor : Drive_Motors){
             dcMotor.setZeroPowerBehavior(behavior);
         }
     }
-
-    //for use with driveEncoder methods
+    
+    /**
+     * Same as {@link #setToForward(double)} but meant for use while using encoders
+     * @param power
+     */
     public void setDriveMotorPower(double power){
         frontLeft.setPower(power);
         frontRight.setPower(power);
         backLeft.setPower(power);
         backRight.setPower(power);
     }
-
-    //to use with servos or to wait
+    
+    /**
+     * Wait for a specified amount of time
+     * @param time in milliseconds
+     */
     public void waiter(int time) {
         Timer.reset();
         while (Timer.milliseconds() < time) {
@@ -422,7 +564,7 @@ public class Hardware {
      *============End do not edit============
      *
      *=======================================*/
-
+    
     /*
      * __________________
      * |                 |
@@ -452,5 +594,5 @@ public class Hardware {
      * |____|
      *
      */
-        
+    
 }

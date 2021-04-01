@@ -6,22 +6,29 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Hardware;
 import org.firstinspires.ftc.teamcode.Threads.Pos_Ring.Pos_Ring;
 import org.firstinspires.ftc.teamcode.Threads.Pos_Ring.Pos_RingCallback;
+import org.firstinspires.ftc.teamcode.Threads.Speed.speed;
 
 @TeleOp(name="TeleOp_Dev - Position", group="Development")
 //@Disabled
 public class TeleOp_Dev extends OpMode {
     
-    Runnable Pos_Ring;
+    Pos_Ring Pos_Ring;
     Thread Pos_Ring_TH;
+    
+    speed sp;
+    Thread spTh;
     
     Hardware r = new Hardware();
     
     String amount = "None";
+    static final int[] target = {15,35};  //target of the location to launch rings
     double[] location = {0,0,0,0};
     boolean is_Targeted = false;
     boolean running = true;
     String Cam = "Pos";
     
+    int targetSpeed = 675; //Ticks per second
+
     @Override
     public void init() {
         r.initRobot(hardwareMap, telemetry);
@@ -42,26 +49,38 @@ public class TeleOp_Dev extends OpMode {
             public boolean is_running() {
                 return running;
             }
-        
+            
             @Override
-            public String camera() {
+            public String camera(){
                 return Cam;
             }
         };
+        
+        sp = new speed(telemetry, r.Flywheel);
+        spTh = new Thread(sp);
+        sp.set_Speed(targetSpeed);
     
         Pos_Ring = new Pos_Ring(hardwareMap, telemetry, prcb);
         Pos_Ring_TH = new Thread(Pos_Ring);
-        
+    
+        spTh.start();
         Pos_Ring_TH.start();
-        
     }
     
-    boolean inReverse=false;//reverse button is b
-    boolean bWasPressed=false;
+    boolean inReverse      = false;//reverse button is b
+    boolean bWasPressed    = false;
+    boolean intake         = false;
+    boolean intake_running = false;
 
     @Override
     public void loop() {
-    
+        
+        if(gamepad1.a)
+            moveTo(target);
+        
+        if(gamepad1.b)
+            moveTo(new int[]{0,0});
+
         //int speed = 0;
         double deflator;
     
@@ -71,10 +90,10 @@ public class TeleOp_Dev extends OpMode {
         }else {
             deflator = .7;
         }
-    
+
         if(gamepad1.left_bumper)
             deflator = 1;
-    
+
         //legacy code that runs our mecanum drive wheels in any direction we want
         /*
          *
@@ -136,20 +155,98 @@ public class TeleOp_Dev extends OpMode {
         r.frontRight.setPower(power2 * deflator);
         r.backLeft.setPower(power3 * deflator);
         r.backRight.setPower(power4 * deflator);
+    
+        // Turn on or off the intake, toggle
+        if(gamepad1.x && !intake)
+            intake_running=!intake_running;
+        intake=gamepad1.x;
+    
+        // Outtake th ring if necessary
+        if(gamepad1.y){
+            r.Intake.setPower(-1);
+            intake_running = false;
+        }else{
+            r.Intake.setPower(0);
+        }
+    
+        // actually turn the intake
+        if(intake_running){
+            r.Intake.setPower(1);
+        }
+    
+        // Launch rings only if we can and want to
+        if(gamepad1.dpad_down && sp.can_Fire()){
+            r.Launcher.setPower(0.6);
+        }else{
+            r.Launcher.setPower(0);
+        }
+        
+        if(gamepad1.start){
+            Cam = "Ring";
+        }else{
+            Cam = "Pos";
+        }
+    
+        // Tell the flywheel to spin if we hold down the trigger
+        sp.spin(gamepad1.left_trigger != 0);
         
         //Logging data
         telemetry.addLine("Pos - ")
-                .addData("X", location[0])
-                .addData("Y", location[1])
-                .addData("Z", location[2])
-                .addData("Heading",location[3]);
+                .addData("X", "%.0f", location[0])
+                .addData("Y", "%.0f", location[1])
+                .addData("Z", "%.0f", location[2])
+                .addData("Heading", "%.0f",location[3]);
         telemetry.update();
+    }
+    
+    double angle = 0;
+    private void moveTo(int[] target) {
+        angle = Math.atan2((target[1] - location[1]), (target[0] - location[0])); // atan2(Y-axis, X-axis)
+    
+        double power1;
+        double power2;
+        double power3;
+        double power4;
+        angle = ((Math.PI) / 2) - (Math.toRadians(location[3]) - angle); // Calculate the angle relative to the robot
+        telemetry.addData("Angle Send", angle);
+//				r.setDriveMotorMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); // Run the motors without their encoders
+//
+//			deflate = (-0.0000103484 * Math.pow(Math.sqrt(Math.pow(i[0] - target[0],2) + Math.pow(i[1]-target[1], 2)), 4))
+//							  + (0.000788031*(Math.pow(Math.sqrt(Math.pow(i[0] - target[0],2) + Math.pow(i[1]-target[1], 2)), 3)))
+//							  + (-0.021532647*(Math.pow(Math.sqrt(Math.pow(i[0] - target[0],2) + Math.pow(i[1]-target[1], 2)), 2)))
+//							  + (0.248123034*Math.sqrt(Math.pow(i[0] - target[0],2) + Math.pow(i[1]-target[1], 2)))
+//							  - (0.005585635);
+        double velocity = 0.4;// * deflate; // speed the bot will move
+        double rotation = (90 - location[3]) * 0.01;   // set the rotation the robot needs to move
+    
+        angle += Math.toRadians(0);
+    
+        //equations taking the polar coordinates and turning them into motor powers
+        double vx = velocity * Math.cos(angle + (Math.PI / 4)); // determine the velocity in the Y-axis
+        double vy = velocity * Math.sin(angle + (Math.PI / 4)); // determine the velocity in the X-axis
+    
+        power1 = vx - rotation; // Calculate the power of motor 1
+        power2 = vy + rotation; // Calculate the power of motor 2
+        power3 = vy - rotation; // Calculate the power of motor 3
+        power4 = vx + rotation; // Calculate the power of motor 4
+    
+        if(target[0]-location[0] >= -2 && target[0]-location[0] <= 2 && target[1]-location[1] >= -2 && target[1]-location[1] <= 2)
+            r.setToStill();
+        
+        else {
+            r.frontLeft.setPower(power1);
+            r.frontRight.setPower(power2);
+            r.backLeft.setPower(power3);
+            r.backRight.setPower(power4);
+        }
     }
     
     @Override
     public void stop() {
         running = false;
+        sp.stop();
         Pos_Ring_TH.interrupt();
+        spTh.interrupt();
         super.stop();
     }
     

@@ -1,25 +1,29 @@
 package org.firstinspires.ftc.teamcode.Threads.Speed;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class speed implements Runnable {
 	
-	HardwareMap hwMap;
 	Telemetry telemetry;
 	DcMotor motor;
+	DcMotor[] driveMotors;
 	
 	private final ElapsedTime Timer = new ElapsedTime();
 	
 	int target_speed, speed = 0;
 	
-	public speed(HardwareMap hwmap, Telemetry tel, DcMotor tempMotor){
-		hwMap = hwmap;
+	public speed(Telemetry tel, DcMotor tempMotor){
 		telemetry = tel;
 		motor = tempMotor;
+	}
+	
+	public speed(Telemetry tel, DcMotor flywheel, DcMotor[] drivemotors){
+		telemetry = tel;
+		motor = flywheel;
+		driveMotors = drivemotors;
 	}
 	
 	double power;
@@ -60,7 +64,9 @@ public class speed implements Runnable {
 			
 			// launch a ring
 			
-			if(canFire) {
+			canFire = target_speed - speed < 5 && target_speed - speed > -5;
+			
+			if(fire) {
 				motor.setPower(power);
 			}else {
 				motor.setPower(0);
@@ -68,35 +74,58 @@ public class speed implements Runnable {
 				power = 0.5;
 				motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 			}
+			
+			if(driveMotors != null){
+			
+			}
+			
 		}
 		
 	}
+	
+	/**
+	 * Set the speed of the Flywheel
+	 *
+	 * @param speed set the target speed we want the flywheel to spin
+	 */
 	
 	public synchronized void set_Speed(int speed){
 		target_speed = speed;
 	}
 	
+	/**
+	 * Spin the Flywheel in TeleOp
+	 *
+	 * @param Fire tell this thread to start or stop spinning
+	 */
 	public synchronized void spin(boolean Fire){
-		canFire = Fire;
+		fire = Fire;
 	}
 	
+	/** Start spinning in Auto */
 	public synchronized void start_spinning(){
 		fire = true;
 	}
 	
+	/** Stop spinning is Auto */
 	public synchronized void stop_spinning(){
 		fire = false;
 	}
 	
+	/** Tell the main thread if we can fire a ring */
 	public synchronized boolean can_Fire(){
 		return canFire;
 	}
 	
+	/** Stops the thread */
 	public synchronized void stop(){
+		fire = false;
 		running = false;
 	}
 	
-	public synchronized int[] speed(){
+	// Tell the main thread what the speed of the Flywheel is
+	// and what we have it set to
+	public synchronized int[] get_speed(){
 		return new int[]{speed, target_speed};
 	}
 	
@@ -109,4 +138,3 @@ public class speed implements Runnable {
 		}
 	}
 }
-

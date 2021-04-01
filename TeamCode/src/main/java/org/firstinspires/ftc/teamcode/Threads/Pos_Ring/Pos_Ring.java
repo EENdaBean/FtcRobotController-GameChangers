@@ -52,6 +52,7 @@ public class Pos_Ring implements Runnable {
 	private static final String TFOD_MODEL_ASSET = "UltimateGoal.tflite";
 	private static final String LABEL_FIRST_ELEMENT = "Quad";
 	private static final String LABEL_SECOND_ELEMENT = "Single";
+	String amount = "none";
 	
 	private static final String VUFORIA_KEY =
 			"AZdDUFH/////AAABmcE1YUJiRkFeqUd1ljT7cbdPlx6u99cBf3BUJkI0x0olgxQwoyRsI+d8nyiSxYL2wiDc1vclp+Ql47jL6T5X1SYSxpK7xywrV8oRnT46GyN1bCUz7K+vjW5IP7XTP9QzV831LHvu5cjc+++k/KafMAu9tcnEeGGVjqQBoAO01SfFn09TrNc3FyvHBtLHQlGi08VmF2M2koexANGpCG9gcBxWhkPvbbgAyR5MbZ4iiKLUSltYooplimJS/JX/QFqSfqQEMP7Lzq0xX+ngWdUP3Tuc45ggmJjbHTAS3dA1+hD8iFURON2gcw8/nZqsD/GJcxlocvU3FTeFpsIxWd0ow/S3jjQ3ZplJ7PuvTm1BSwfC";
@@ -88,12 +89,13 @@ public class Pos_Ring implements Runnable {
 		hwMap = hwmap;
 		telemetry = tm;
 		cb = CB;
-		initVuforia();
-		initTfod();
 	}
 	
 	@Override
 	public void run() { //Main method, this is what will run everything
+		
+		initVuforia();
+		initTfod();
 		
 		tfod.activate();
 		
@@ -105,6 +107,7 @@ public class Pos_Ring implements Runnable {
 				// getUpdatedRecognitions() will return null if no new information is available since
 				// the last time that call was made.
 				List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+				amount = "none";
 				if (updatedRecognitions != null) {
 //					telemetry.addData("# Object Detected", updatedRecognitions.size());
 					// step through the list of recognitions and display boundary info.
@@ -114,9 +117,10 @@ public class Pos_Ring implements Runnable {
 //								recognition.getLeft(), recognition.getTop());
 //						telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
 //								recognition.getRight(), recognition.getBottom());
-						cb.ring(recognition.getLabel());
+						amount = recognition.getLabel();
 					}
 					//telemetry.update();
+					cb.ring(amount);
 				}
 				
 				//					cb.ring("none here!");
@@ -173,8 +177,10 @@ public class Pos_Ring implements Runnable {
 	private void switch_cam(){
 		if ("Pos".equals(cb.camera())) {
 			switchableCamera.setActiveCamera(webcam1);
+			tfod.setZoom(1,16.0/9.0);
 		} else {
 			switchableCamera.setActiveCamera(webcam2);
+			tfod.setZoom(2.5, 16/9f);
 		}
 	}
 	
@@ -195,7 +201,9 @@ public class Pos_Ring implements Runnable {
 		vuforia = ClassFactory.getInstance().createVuforia(parameters);
 		
 		switchableCamera = (SwitchableCamera) vuforia.getCamera();
-		switchableCamera.setActiveCamera(webcam2);
+		if (switchableCamera != null) {
+			switchableCamera.setActiveCamera(webcam2);
+		}
 		
 		initPos();
 		

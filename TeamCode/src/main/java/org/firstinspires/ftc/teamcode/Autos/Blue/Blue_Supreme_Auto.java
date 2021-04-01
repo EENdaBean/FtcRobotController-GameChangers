@@ -43,19 +43,18 @@ public class Blue_Supreme_Auto extends LinearOpMode {
 	
 	Hardware r = new Hardware();
 	
-	Runnable Pos_Ring;
+	Pos_Ring Pos_Ring;
 	Thread Pos_Ring_TH;
 	
-	int targetSpeed = 700; //Ticks per second
+	int targetSpeed = 675; //Ticks per second
 	
 	double[] location	 			 = {0,0,0,0}; //x, y, z, heading
 	boolean is_Targeted 			 = false;
-	static final int[] target1 		 = {27,56};  //target of block 1
+	static final int[] target1 		 = {27,56};  //target of block 17
 	static final int[] target2 		 = {47,25};  //target of block 2
 	static final int[] target3       = {47,26};  //target of block 3
-	static final int[] target_launch = {21,35};  //target of the location to launch rings
-	static final int[] target_Line 	 = {30,35};  //target of the ending line (white line)
-//	static final int[] target_ring   = {0,0};    //where the reference rings are
+	static final int[] target_launch = {15,35};  //target of the location to launch rings
+	static final int[] target_Line 	 = {25,35};  //target of the ending line (white line)
 	int[] target 					 = {50,60};  //to change where we need to move
 	
 	String amount = "none";
@@ -90,7 +89,7 @@ public class Blue_Supreme_Auto extends LinearOpMode {
 			}
 			
 			@Override
-			public String camera() {
+			public String camera(){
 				return Cam;
 			}
 		};
