@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.TeleOp;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.Hardware;
 import org.firstinspires.ftc.teamcode.Threads.Pos_Ring.Pos_Ring;
@@ -21,17 +22,19 @@ public class TeleOp_Dev extends OpMode {
     Hardware r = new Hardware();
     
     String amount = "None";
-    static final int[] target = {15,35};  //target of the location to launch rings
+    static final int[] target = {13,37};  //target of the location to launch rings
     double[] location = {0,0,0,0};
     boolean is_Targeted = false;
     boolean running = true;
     String Cam = "Pos";
     
-    int targetSpeed = 675; //Ticks per second
+    int targetSpeed = 725; //Ticks per second/2
 
     @Override
     public void init() {
         r.initRobot(hardwareMap, telemetry);
+        
+        r.Arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     
         Pos_RingCallback prcb = new Pos_RingCallback() {
             @Override
@@ -76,10 +79,7 @@ public class TeleOp_Dev extends OpMode {
     public void loop() {
         
         if(gamepad1.a)
-            moveTo(target);
-        
-        if(gamepad1.b)
-            moveTo(new int[]{0,0});
+            moveTo(target);;
 
         //int speed = 0;
         double deflator;
@@ -181,6 +181,14 @@ public class TeleOp_Dev extends OpMode {
             r.Launcher.setPower(0);
         }
         
+        if(gamepad1.dpad_up){
+            r.Wobble.setPosition(1);
+        } else {
+            r.Wobble.setPosition(0);
+        }
+        
+        r.Arm.setPower(gamepad2.left_stick_x);
+        
         if(gamepad1.start){
             Cam = "Ring";
         }else{
@@ -196,12 +204,13 @@ public class TeleOp_Dev extends OpMode {
                 .addData("Y", "%.0f", location[1])
                 .addData("Z", "%.0f", location[2])
                 .addData("Heading", "%.0f",location[3]);
+        telemetry.addData("Arm", r.Arm.getCurrentPosition());
         telemetry.update();
     }
     
     double angle = 0;
-    private void moveTo(int[] target) {
-        angle = Math.atan2((target[1] - location[1]), (target[0] - location[0])); // atan2(Y-axis, X-axis)
+    private void moveTo(int[] targetA) {
+        angle = Math.atan2((targetA[1] - location[1]), (targetA[0] - location[0])); // atan2(Y-axis, X-axis)
     
         double power1;
         double power2;
@@ -216,7 +225,7 @@ public class TeleOp_Dev extends OpMode {
 //							  + (-0.021532647*(Math.pow(Math.sqrt(Math.pow(i[0] - target[0],2) + Math.pow(i[1]-target[1], 2)), 2)))
 //							  + (0.248123034*Math.sqrt(Math.pow(i[0] - target[0],2) + Math.pow(i[1]-target[1], 2)))
 //							  - (0.005585635);
-        double velocity = 0.4;// * deflate; // speed the bot will move
+        double velocity = 0.6;// * deflate; // speed the bot will move
         double rotation = (90 - location[3]) * 0.01;   // set the rotation the robot needs to move
     
         angle += Math.toRadians(0);
@@ -230,7 +239,7 @@ public class TeleOp_Dev extends OpMode {
         power3 = vy - rotation; // Calculate the power of motor 3
         power4 = vx + rotation; // Calculate the power of motor 4
     
-        if(target[0]-location[0] >= -2 && target[0]-location[0] <= 2 && target[1]-location[1] >= -2 && target[1]-location[1] <= 2)
+        if(targetA[0]-location[0] >= -1 && targetA[0]-location[0] <= 1 && targetA[1]-location[1] >= -1 && targetA[1]-location[1] <= 1)
             r.setToStill();
         
         else {

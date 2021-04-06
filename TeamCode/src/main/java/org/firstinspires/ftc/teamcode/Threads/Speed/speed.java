@@ -71,7 +71,7 @@ public class speed implements Runnable {
 			}else {
 				motor.setPower(0);
 				motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-				power = 0.5;
+				power = 0.7;
 				motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 			}
 			

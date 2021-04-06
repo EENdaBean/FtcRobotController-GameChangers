@@ -29,6 +29,8 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -36,6 +38,10 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 
 /**
  * This is the main reference class for the robot
@@ -81,7 +87,9 @@ public class Hardware {
     /** Launcher motor */
     Launcher,
     /** Flywheel motor */
-    Flywheel;
+    Flywheel,
+    /** The Arm motor*/
+    Arm;
     /** All of your driving motors */
     public DcMotor[] Drive_Motors;
     /** All of your motors */
@@ -102,6 +110,13 @@ public class Hardware {
     
     public static final int encoderSafeZone=50;/*a motor must be within this many ticks of its
    target to be considered "on target"*/
+    
+    // The IMU sensor object
+    BNO055IMU imu;
+    
+    // State used for updating telemetry
+    Orientation angles;
+    Acceleration gravity;
 
 //    public static final int minRotDist=0;
     
@@ -160,9 +175,13 @@ public class Hardware {
         Launcher = hwMap.dcMotor.get("push");    //Launcher motor
         Flywheel = hwMap.dcMotor.get("launch");  //Launcher flywheel
         
+        Arm = hwMap.dcMotor.get("Arm"); //Arm motor
+        
         Flywheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         Intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         Launcher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        
+        Arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         
         //Intake.setDirection(DcMotorSimple.Direction.REVERSE);
         Launcher.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -171,7 +190,7 @@ public class Hardware {
         backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         
         Drive_Motors = new DcMotor[]{frontLeft, frontRight, backLeft, backRight};
-        All_Motors = new DcMotor[]{frontLeft, frontRight, backLeft, backRight, Intake, Launcher, Flywheel};
+        All_Motors = new DcMotor[]{frontLeft, frontRight, backLeft, backRight, Intake, Launcher, Flywheel, Arm};
         
         Wobble = hwMap.servo.get("wob");
         
@@ -187,7 +206,23 @@ public class Hardware {
         for(Servo servo : Servos){
             servo.setPosition(0);
         }
+        initIMU();
         waiter(500);
+    }
+    
+    public void initIMU(){
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
+        parameters.loggingEnabled      = true;
+        parameters.loggingTag          = "IMU";
+        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
+        
+        imu = hwMap.get(BNO055IMU.class, "imu");
+        imu.initialize(parameters);
+    
+        imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
     }
     
     /*=======================================
@@ -326,7 +361,7 @@ public class Hardware {
     }
     /**
      * Set all Drive_Motors to the same power to move left
-     * @param power double from 0 to 1
+     * @param power double from 0.0 to 1.0
      * @see #Drive_Motors for all your drive motors
      */
     public void setToLeft(double power) {
@@ -348,7 +383,7 @@ public class Hardware {
     
     /**
      * Move forward a specified distance using the encoders
-     * @param power double from 0 to 1
+     * @param power double from 0.0 to 1.0
      * @param distance in inches
      */
     public void driveForwardEncoder(double power, int distance) {
@@ -379,7 +414,7 @@ public class Hardware {
     }
     /**
      * Move backward a specified distance using the encoders
-     * @param power double from 0 to 1
+     * @param power double from 0.0 to 1.0
      * @param distance in inches
      */
     public void driveBackwardEncoder(double power, int distance) {
@@ -409,7 +444,7 @@ public class Hardware {
     }
     /**
      * Move left a specified distance using the encoders
-     * @param power double from 0 to 1
+     * @param power double from 0.0 to 1.0
      * @param distance in inches
      */
     public void driveLeftEncoder(double power, int distance) {
@@ -440,7 +475,7 @@ public class Hardware {
     }
     /**
      * Move right a specified distance using the encoders
-     * @param power double from 0 to 1
+     * @param power double from 0.0 to 1.0
      * @param distance in inches
      */
     public void driveRightEncoder(double power, int distance) {
@@ -470,7 +505,7 @@ public class Hardware {
     }
     /**
      * Rotate Clockwise a specified distance using the encoders
-     * @param power double from 0 to 1
+     * @param power double from 0.0 to 1.0
      * @param distance in inches
      */
     public void turnClockwiseEncoder(double power, int distance) {
@@ -541,7 +576,7 @@ public class Hardware {
     
     /**
      * Same as {@link #setToForward(double)} but meant for use while using encoders
-     * @param power
+     * @param power Double from 0.0 to 1.0
      */
     public void setDriveMotorPower(double power){
         frontLeft.setPower(power);
@@ -551,13 +586,24 @@ public class Hardware {
     }
     
     /**
+     * This method is made to rotate the robot to a specific angle
+     * @param speed The seed you wish to turn
+     * @param degree The angle you wish to end up with
+     */
+    public void rotateDeg(double speed, int degree){
+        // while we are not at the degree
+        //      rotate right if degree > 0
+        //      rotate left if degree < 0
+    }
+    
+    /**
      * Wait for a specified amount of time
      * @param time in milliseconds
      */
     public void waiter(int time) {
         Timer.reset();
-        while (Timer.milliseconds() < time) {
-        }
+        while (true) if (!(Timer.milliseconds() < time)) break;
+        
     }
     /*=======================================
      *
