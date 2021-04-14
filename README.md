@@ -136,7 +136,7 @@ public void launch(int a, int b, int c){
 
   ## CV.java
   
-  This is our [Vuforia](https://developer.vuforia.com/) and [Tensorflow lite](https://www.tensorflow.org/lite) Computer Vision class. [This class](https://github.com/BenGhent/FtcRobotController-GameChangers/blob/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/CV.java) allows us to detect objects weather we are in Autonomus or Teleop so that we can accuratly detect and lign up with objects such as the ring stack or the goals. This was taken from [ConceptTensorFlowObjectDetectionWebcam](https://github.com/BenGhent/FtcRobotController-GameChangers/blob/master/FtcRobotController/src/main/java/org/firstinspires/ftc/robotcontroller/external/samples/ConceptTensorFlowObjectDetectionWebcam.java) in the examples located [here.](https://github.com/BenGhent/FtcRobotController-GameChangers/blob/master/FtcRobotController/src/main/java/org/firstinspires/ftc/robotcontroller/external/samples)
+  This is our [Vuforia](https://developer.vuforia.com/) and [Tensorflow lite](https://www.tensorflow.org/lite) Computer Vision class. [This class](https://github.com/BenGhent/FtcRobotController-GameChangers/blob/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/CV.java) allows us to detect objects whether we are in Autonomous or TeleOp so that we can accurately detect and line up with objects, such as the ring stack or the goals. This was taken from [ConceptTensorFlowObjectDetectionWebcam](https://github.com/BenGhent/FtcRobotController-GameChangers/blob/master/FtcRobotController/src/main/java/org/firstinspires/ftc/robotcontroller/external/samples/ConceptTensorFlowObjectDetectionWebcam.java) in the examples located [here.](https://github.com/BenGhent/FtcRobotController-GameChangers/blob/master/FtcRobotController/src/main/java/org/firstinspires/ftc/robotcontroller/external/samples)
   
   This uses the Tensorflow modles(.tflite) that were generously provided by the wonderful people at First Inspires. (See [the FTC wiki](https://github.com/FIRST-Tech-Challenge/FtcRobotController/wiki/Java-Sample-TensorFlow-Object-Detection-Op-Mode) for more information.)
   
@@ -144,19 +144,19 @@ public void launch(int a, int b, int c){
   - [X] Test on robot
   - [ ] Convert to refrence class
   - [X] Make compatable with Autonomus
-  - [ ] Make compatable with Teleop
+  - [ ] Make compatable with TeleOp
   - [ ] Add reference images (the ones under the goals and outer walls)
   
    ##Multi-Thread
    
-   This year we have opted to go with a different approach to dealing with bugs, Multi-Threading. What Multi-Threading allows us to do is run our CV program in the background so that if and when it gets stuck on a task, it is not hindering our abinity to still move and controll the robot. We are using multi-threading mainly for our CV program.
+   This year, we have opted to go with a different approach to dealing with bugs: Multi-Threading. What Multi-Threading allows us to do is run our CV program in the background, so that if and when it gets stuck on a task, it isn't hindering our ability to still move and control the robot. We are using multi-threading mainly for our CV program.
   
   # Overall Things
   
   ## Things to do
   
   ### Robot
-  - [X] Complete the initial chassis designe
+  - [X] Complete the initial chassis design
   - [X] Build the chassis
   - [X] Designe the launching mechanism
   - [ ] Build the launching mechanism
