@@ -169,10 +169,10 @@ public void launch(int a, int b, int c){
   - [ ] Get comp code working after dev is working
   
   ### Extra Software
-  As an extra challenge that we are tackling this year, we will be developing a SLAM (Self Locating and Maping) software. This will take in gyroscope data and computer vision to locate the robot on the field semi accuratly. This is will used trained tensorflow software to recognise the reference images placed around the game field.
+  As an extra challenge that we are tackling this year, we will be developing a SLAM (Self Locating and Mapping) software. This will take in gyroscope data and computer vision to locate the robot on the field very accurately. This will use trained tensorflow software to recognise the reference images placed around the game field.
   
-  For the future development this will allow us to have a semi-autonomus TeleOp where the user is only there to "kill" the robot if something goes wrong. This is possible in the 2020-2021 year because we will not have an alience partner that could mess with positions, get in the way, or even block important targets for positioning.
+  Future development of this will allow us to have a semi-autonomous TeleOp, where the user is only there to "kill" the robot if something goes wrong. This is possible in the 2020-2021 year, because we haven't had an alliance partner that could mess with positioning by blocking our camera's line of sight.
   
   ## This year
   
-  Due to the global pandeic we will not be doing in-person competitions for the forseable future. This will allow our team to branch out and understand and develop new tools that will help us in the future competitions. We are learning new ways to make the robot modular and easily changeable, we are diping out toes in computer vision, we are also developing new ways to organize our teams to make the job of our journelists (notebook people) easier by documenting every step of the designe process.
+  Due to the global pandemic we will not be doing in-person competitions for the forseeable future. This will allow our team to branch out so that we can understand and develop new tools that will help us in future competitions. We are also learning new ways to make the robot modular and easily changeable, hoping to eventually have a robot with a modularly interchangable design. As of right now, we are dipping our toes in computer vision and developing new ways to organize our team to make the job of our journalists (notebook people) easier by documenting every step of the design process, even in our code.
